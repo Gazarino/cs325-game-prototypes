@@ -51,6 +51,6 @@ window.onload = function() {
         // This function returns the rotation angle that makes it visually match its
         // new trajectory.
         //bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, this.game.input.activePointer, 500, 500, 500 );
-	//bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, dotty, 500, 500, 500 );
+	bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, dotty, 500, 500, 500 );
     }
 };
