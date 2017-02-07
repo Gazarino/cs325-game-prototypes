@@ -27,7 +27,7 @@ window.onload = function() {
     function create() {
         // Create a sprite at the center of the screen using the 'logo' image.
         bouncy = game.add.sprite( game.world.centerX, game.world.centerY, 'logo' );
-	dotty = game.add.sprite( game.world.centerX, game.world.centerY, 'dot' );
+	dotty = game.add.sprite( 200, 200, 'dot' );
         // Anchor the sprite at its center, as opposed to its top-left corner.
         // so it will be truly centered.
         bouncy.anchor.setTo( 0.5, 0.5 );
@@ -50,7 +50,7 @@ window.onload = function() {
         // in X or Y.
         // This function returns the rotation angle that makes it visually match its
         // new trajectory.
-        //bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, this.game.input.activePointer, 500, 500, 500 );
+        bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, this.game.input.activePointer, 500, 500, 500 );
 	//bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, dotty, 500, 500, 500 );
     }
 };
