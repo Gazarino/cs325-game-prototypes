@@ -11,46 +11,147 @@ window.onload = function() {
     // loading functions to reflect where you are putting the assets.
     // All loading functions will typically all be found inside "preload()".
     
-    "use strict";
+    //"use strict";
     
-    var game = new Phaser.Game( 800, 600, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
+    var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'game', { preload: preload, create: create, update: update });
+
+
+function preload() {
+    game.load.image('earth', 'assets/earth.png');
+    game.load.image('asteroid', 'assets/asteroid.png');
+    game.load.image('ship', 'assets/ship.png');
+
+}
+
+var sprite;
+var earth;
+var weapon;
+var cursors;
+var fireButton;
+var shotsLeft = 15;
+var score = 0;
+var scoreString = '';
+var scoreText;
+var shotText;
+var stateText;
+
+function create() {
+
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    weapon = game.add.weapon(1, 'asteroid');
+
+    //  The bullet will be automatically killed when it leaves the world bounds
+    weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+
+    //  Because our asteroid is drawn facing up, we need to offset its rotation:
+    weapon.bulletAngleOffset = 90;
+
+    //  The speed at which the asteroid is fired
+    weapon.bulletSpeed = 400;
+
+    sprite = this.add.sprite(320, 500, 'ship');
+    sprite.anchor.setTo(0.25, 0.25);
+
+    game.physics.arcade.enable(sprite);
+
+    //  Tell the Weapon to track the 'player' Sprite, offset by 12px horizontally, 0 vertically
+    weapon.trackSprite(sprite, 12, 0);
+
+    cursors = this.input.keyboard.createCursorKeys();
+
+    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+
+    earth = this.add.sprite(375, 100, 'earth');
+    earth.anchor.setTo(0.5, 0.5);
+
+    game.physics.arcade.enable([earth, weapon]);
+
+    earth.body.maxAngular = 500;
+
+//  Apply a drag otherwise the sprite will just spin and never slow down
+    earth.body.angularDrag = 50;
+
+    //face1.body.velocity.setTo(200, 200);
+    //earth.body.bounce.set(1);
     
-    function preload() {
-        // Load an image and call it 'logo'.
-        game.load.image( 'logo', 'assets/phaser.png' );
-	game.load.image( 'dot', 'assets/density_dot.png' );
+    //face2.body.velocity.setTo(-200, 200);
+    //weapon.body.bounce.set(1);
+
+    earth.body.collideWorldBounds = true;
+    //weapon.body.collideWorldBounds = true;
+
+    earth.body.onCollide = new Phaser.Signal();
+    earth.body.onCollide.add(hitSprite, this);
+
+    //  The score
+    scoreString = 'Score : ';
+    scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
+
+    //  Shots left
+    shotStr = 'Shots Left : ';
+    shotText = game.add.text(game.world.width - 250, 10, shotStr+shotsLeft, { font: '34px Arial', fill: '#fff' });
+
+    //  Text
+    stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
+    stateText.anchor.setTo(0.5, 0.5);
+    stateText.visible = false;
+}
+
+
+function update() {
+
+    sprite.body.velocity.x = 0;
+
+    //  Reset the acceleration
+    earth.body.angularAcceleration = 0;
+
+    if (cursors.left.isDown) {
+        sprite.body.velocity.x = -150;
+	earth.body.angularAcceleration -= 150;
     }
-    
-    var bouncy;
-    var dotty;
-    
-    function create() {
-        // Create a sprite at the center of the screen using the 'logo' image.
-        bouncy = game.add.sprite( game.world.centerX, game.world.centerY, 'logo' );
-	dotty = game.add.sprite( 200, 200, 'dot' );
-        // Anchor the sprite at its center, as opposed to its top-left corner.
-        // so it will be truly centered.
-        bouncy.anchor.setTo( 0.5, 0.5 );
-        
-        // Turn on the arcade physics engine for this sprite.
-        game.physics.enable( bouncy, Phaser.Physics.ARCADE );
-        // Make it bounce off of the world bounds.
-        bouncy.body.collideWorldBounds = true;
-        
-        // Add some text using a CSS style.
-        // Center it in X, and position its top 15 pixels from the top of the world.
-        //var style = { font: "25px Verdana", fill: "#9999ff", align: "center" };
-        //var text = game.add.text( game.world.centerX, 15, "Build something amazing.", style );
-        //text.anchor.setTo( 0.5, 0.0 );
+    else if (cursors.right.isDown) {
+        sprite.body.velocity.x = 150;
+	earth.body.angularAcceleration += 150;
     }
-    
-    function update() {
-        // Accelerate the 'logo' sprite towards the cursor,
-        // accelerating at 500 pixels/second and moving no faster than 500 pixels/second
-        // in X or Y.
-        // This function returns the rotation angle that makes it visually match its
-        // new trajectory.
-        //bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, this.game.input.activePointer, 500, 500, 500 );
-	bouncy.rotation = game.physics.arcade.accelerateToObject( bouncy, dotty, 50 );
+    else {
+	earth.body.angularVelocity = 150;
     }
+
+    if (fireButton.isDown) {
+        weapon.fire();
+	shotsLeft--;
+	shotText.text = shotStr + shotsLeft;
+    }
+    game.physics.arcade.collide(earth, weapon);
+}
+
+function hitSprite (sprite1, sprite2) {
+
+    sprite2.kill();
+
+    //  Increase the score
+    score += 20;
+    scoreText.text = scoreString + score;
+
+    if (shotsLeft == 0) {
+
+        stateText.text = " You Won, \n Click to restart";
+        stateText.visible = true;
+
+        //the "click to restart" handler
+        game.input.onTap.addOnce(restart,this);
+    }
+
+}
+
+function render() {
+
+    game.debug.spriteInfo(earth, 32, 32);
+    game.debug.text('angularVelocity: ' + earth.body.angularVelocity, 32, 200);
+    game.debug.text('angularAcceleration: ' + earth.body.angularAcceleration, 32, 232);
+    game.debug.text('angularDrag: ' + earth.body.angularDrag, 32, 264);
+    game.debug.text('deltaZ: ' + earth.body.deltaZ(), 32, 296);
+}
+
 };
