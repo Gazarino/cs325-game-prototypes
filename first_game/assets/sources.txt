@@ -1,0 +1,4 @@
+http://forums.getpaint.net/index.php?/topic/25734-3d-extrusion-from-sphere/
+http://opengameart.org/content/asteroid-generator-and-a-set-of-generated-asteroids
+http://www.clipartbay.com/alien-spaceship-clipart
+https://github.com/photonstorm/phaser-examples/blob/master/examples/weapon/single%20bullet.js
