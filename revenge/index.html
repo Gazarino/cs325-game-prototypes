@@ -42,17 +42,17 @@ I want players to experience a thought-filled battle with a big focus on plannin
 </li>
 
 <li><strong>Gameplay:</strong>
-Using the arrow keys, both players (independently) choose to do 0-4 actions, then pick which actions to take and how much
-power to put behind each. Possible actions are Charge, Attack, Heal, and Counter. Each one has its own power bank,
-which can hold up to 4 power. Players start with 100 health, and lose when it reaches 0. Attack does 10*power damage,
-and Heal restores 8*power health. Counter hits back an attack, dealing 6*power*(powerOfEnemyAttack) damage.
-Charge adds power to the next action performed, changing power limits from 0-(actionPower) to (chargedPower)-(actionPower+chargedPower).
-After both players enter all input, battle begins and the 1st action players entered is carried out, then the 2nd, etc.
-(with the press of the spacebar). Players enter input again for the next 0-4 actions, and battling continues until someone
-runs out of health. After every battle phase, 1 power in the Charge, Attack, Heal, and Counter power banks is restored.
-Additionally, a player's Attack power bank gets +1 when that player is damaged by the opponent's attack, and a player's
-Charge power bank gets +1 when that player takes 50 or more damage at once. The 4 power banks cannot carry more than 4 power each,
-making it wasteful to not use all types of actions.
+<ul>
+<li>Using the arrow keys, both players (independently) choose to do 0-4 actions, then pick which actions to take and how much power to put behind each.</li>
+<li>Possible actions are Charge, Attack, Heal, and Counter. Each one has its own power bank, which can hold up to 4 power. Using an action with 0 power does nothing.</li>
+<li>Players start with 100 health, and lose when it reaches 0. Attack does 10*power damage, and Heal restores 8*power health. Counter hits back an attack, dealing 6*power*(powerOfEnemyAttack) damage.</li>
+<li>Charge adds power to the next action performed, changing power limits from 0-(powerInBank) to (chargedPower)-(powerInBank + chargedPower).</li>
+<li>After both players enter all input, battle begins and the 1st action players entered is carried out, then the 2nd, etc. (with the press of the spacebar). Heals always occur before an attack hits. Counter does nothing if the other player did not attack.</li>
+<li>Players enter input again for the next 0-4 actions, and battling continues until someone runs out of health.</li>
+<li>After every battle phase, 1 power in the Charge, Attack, Heal, and Counter power banks is restored.</li>
+<li>Additionally, a player's Attack power bank gets +1 when that player is damaged by the opponent's attack, and a player's Charge power bank gets +1 when that player takes 50 or more damage at once.</li>
+<li>The 4 power banks cannot carry more than 4 power each, making it wasteful to not use all types of actions.</li>
+</ul>
 </li>
 
 <li><strong>Prototype Goal:</strong>
