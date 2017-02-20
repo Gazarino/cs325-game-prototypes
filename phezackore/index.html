@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Phezackore Hunt</title>
+    <script src="js/phaser.js"></script>
+    <script src="js/main.js"></script>
+
+<style>
+body
+{
+    color: #777;
+    font-family: "Avenir", Verdana, sans-serif;
+}
+#readme
+{
+    margin-top: 10px;
+}
+</style>
+
+</head>
+<body>
+<div id="game"></div>
+<div id="readme">
+<h2>Phezackore Hunt</h2>
+<ul>
+
+<li><strong>High Concept:</strong>
+Gather all of of the phezackores with limited resources!
+</li>
+
+<li><strong>Themes:</strong>
+Invisibility, guessing game gone wrong.
+</li>
+
+<li><strong>Mandated Variety:</strong>
+This is a luck-based puzzle game which uses the mouse and clickable buttons for input.
+There is a lot of randomness in the gameplay, and it has collector/achiever play styles.
+</li>
+
+<li><strong>Player Experience Goals:</strong>
+Have fun testing your luck, memory, and planning skills!
+</li>
+
+<li><strong>Gameplay:</strong>
+<li>You begin with 150 resource points and 100 health points; if either reach 0, you lose.
+If you manage to gather all 20 phezackores, you win and your remaining RP and HP is added to your score.</li>
+<li>Every search consumes (2 + # of tiles in search) resources.</li>
+<li>To search, select an area of tiles by clicking. Use the range slider to adjust the size of the area to examine,
+then pick a confidence level and click the search button.</li>
+<li>If no phezackore are in the searched area and you guessed with any amount of confidence, they will temporarily appear and attack you!
+On the other hand, if you guessed correctly and with any amount of confidence, you are rewarded:</li>
+<li>Very Confident->	Penalty: -8*(range+1) HP  </li>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Reward: +20*(# found) score,  +8 RP
+<li>Confident->		Penalty: -4*(range+1) HP  </li>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;Reward: +10*(# found) score,  +4 RP
+<li>Slightly Confident->	Penalty: -2*(range+1) HP  </li>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;Reward: +5*(# found) score,  +2 RP
+<li>If you search in a broad area (range>1), the phezackores are likely to move around,
+so you can't depend on never checking the same place twice!</li>
+</li>
+
+<li><strong>Prototype Goal:</strong>
+Test how a player's confidence in their guesses adds interest to a guessing game.
+</li>
+
+<li><strong>Features:</strong>
+The options of range and confidence, and the inclusion of both a resource and health bar (uncommon in guessing games).
+</li>
+
+<li><strong>Setting/Premise:</strong>
+You are a researcher who has come across an incredible new species: the phezackore!
+You have confirmed that they're currently living in a moonlit expanse in the middle of a dense forest.
+These creatures have special bodies which allow them to turn completely invisible, and they appear to be dangerous.
+Most refused to believe your claims about the phezackores, so you only got so much funding to gather them for research.
+Be careful; phezackores seem to be very protective of their kind, so they won't let you get away once you start gathering.
+It's all or nothing...good luck!
+</li>
+
+<li><strong>Target Audience:</strong>
+Those who enjoy hard games which require luck and good memory.
+</li>
+
+<li><strong>Play Time:</strong>
+About 5-15 minutes.
+</li>
+
+<li><strong>Strategies:</strong>
+<li>Search with slight confidence if you just want a hint as to where some are, and take note of where the phezackores appear!</li>
+<li>Running dangerously low on resources? Increase your confidence, lower your range of search, and hope you're lucky.</li>
+<li>Use the flower/rock locations to help you remember where you've searched already, and search with low range (0-1)
+so the phezackores don't move around!</li>
+</li>
+
+<li><strong>Prototype Assets:</strong>
+<ul>
+<li>Background: <a href="http://opengameart.org/content/forest-tiles">Forest Tiles</a></li>
+<li>Song 1: <a href="https://www.dl-sounds.com/royalty-free/crystal-hunter/">Crystal Hunter</a></li>
+<li>Song 2: <a href="https://www.dl-sounds.com/royalty-free/videogame1/">videogame1</a></li>
+<li>Everything else is custom-made.</li>
+</ul>
+</li>
+
+<li><strong>Prototype Closest Other Game:</strong>
+Borrowing some code from <a href="https://github.com/photonstorm/phaser-examples/blob/master/examples/tilemaps/tile%20properties.js">Tile Properties</a> phaser example.
+</li>
+
+</ul>
+</div>
+</body>
+</html>

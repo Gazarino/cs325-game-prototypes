@@ -84,8 +84,7 @@ window.onload = function() {
         game.physics.enable(sprite2, Phaser.Physics.ARCADE);
 
         music = game.add.audio('song');
-        music.play();
-        music.volume -= .7;
+        music.loopFull(.5);
 
       	//  Register the keys.
       	this.leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
