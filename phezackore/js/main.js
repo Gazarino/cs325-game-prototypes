@@ -65,6 +65,7 @@ window.onload = function() {
     var textScore;
     var textFound;
     var textResult;
+    var textFinal;
 
     function create() {
         game.add.sprite(640, 0, 'options');
@@ -94,6 +95,7 @@ window.onload = function() {
 
         phezackoreLocs[0].x = game.rnd.integerInRange(0, 19);
         phezackoreLocs[0].y = game.rnd.integerInRange(0, 9);
+        //console.log("x:"+phezackoreLocs[0].x+", y:"+phezackoreLocs[0].y);
         for(var i = 1; i < 20; i++) {
             var xCoord = game.rnd.integerInRange(0, 19);
             var yCoord = game.rnd.integerInRange(0, 9);
@@ -105,6 +107,7 @@ window.onload = function() {
                 }
             }
             phezackoreLocs.push({x:xCoord, y:yCoord});
+            //console.log("x:"+xCoord+", y:"+yCoord);
             phezackoreLeft++;
         }
 
@@ -141,6 +144,7 @@ window.onload = function() {
         textFound = game.add.text(0, 0, "", {font:"22px Arial", fill:"#ffffff", align:"center" });
         textFound.alpha = 0;
         textResult = game.add.text(240, 150, "", {font:"30px Arial", fill:"#ffffff", align:"center" });
+        textFinal = game.add.text(240, 185, "", {font:"22px Arial", fill:"#ffffff", align:"center" });
     }
 
     function clickEvent() {
@@ -308,6 +312,10 @@ window.onload = function() {
         for (var i=0; i<phezackoreLeft; i++) {
             var xCoord = game.rnd.integerInRange(phezackoreLocs[i].x-move, phezackoreLocs[i].x+move);
             var yCoord = game.rnd.integerInRange(phezackoreLocs[i].y-move, phezackoreLocs[i].y+move);
+            while (xCoord < 0 || xCoord > 19)
+                xCoord = game.rnd.integerInRange(phezackoreLocs[i].x-move, phezackoreLocs[i].x+move);
+            while (yCoord < 0 || yCoord > 9)
+                yCoord = game.rnd.integerInRange(phezackoreLocs[i].y-move, phezackoreLocs[i].y+move);
             for (var j = 0; j < phezackoreLeft; j++) {
                 if (xCoord===phezackoreLocs[j].x && yCoord===phezackoreLocs[j].y && i!==j) {
                     xCoord = game.rnd.integerInRange(phezackoreLocs[i].x-move, phezackoreLocs[i].x+move);
@@ -342,7 +350,7 @@ window.onload = function() {
 
             phezackores[i].body.x = phezackoreLocs[r].x*32;
             phezackores[i].body.y = phezackoreLocs[r].y*32;
-            phezackores[i].data = {prevX:phezackoreLocs[r].x*32+16, prevY:phezackoreLocs[r].y*32+16, in:true, target:0};
+            phezackores[i].data = {prevX:phezackoreLocs[r].x*32, prevY:phezackoreLocs[r].y*32, in:true, target:0};
             if (phezackores[i].body.x < 225)
                 r = game.rnd.integerInRange(hpFull.x, hpFull.x+(hpFull.width/2));
             else
@@ -417,6 +425,7 @@ window.onload = function() {
 
         textHP.text = "Health: " + health;
         textRP.text = "Resources: " + resources;
+
         hpFull.width = 101 - (100 - health);
         rpFull.width = 101 - (100 - resources);
 
@@ -436,10 +445,20 @@ window.onload = function() {
         }
 
         if (phezackoreLeft === 0 && textResult.text === "") {
-            score += resources;
-            score += health;
             lockSearch = true;
+            score += 100;
             textResult.text = "YOU WIN!";
+        }
+        if (textResult.text !== "") {
+            if (resources > 0) {
+                resources--;
+                score++;
+            } else if (health > 0) {
+                health--;
+                score++;
+            }
+            textScore.text = "Score: " + score;
+            textFinal.text = "Final Score: "+score;
         }
 
         updateSlider();
