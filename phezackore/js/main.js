@@ -335,7 +335,7 @@ window.onload = function() {
         if (range > 2)
             numAttacking++;
         while (numAttacking > phezackoreLeft)
-            numAttacking--;
+            numAttacking = phezackoreLeft;
 
         for (var i=0; i<numAttacking; i++) {
             phezackores.push({});
@@ -347,7 +347,12 @@ window.onload = function() {
             phezackores[i].alpha = 0;
             phezackores[i].anchor.setTo(0.5, 0.5);
             var r = game.rnd.integerInRange(0, phezackoreLeft-1);
-
+            for (var k=0; k<i; k++) {
+                if (phezackoreLocs[r].x===Math.round(phezackores[k].body.x/32) && phezackoreLocs[r].y===Math.round(phezackores[k].body.y/32)) {
+                    r = game.rnd.integerInRange(0, phezackoreLeft-1);
+                    k = -1;
+                }
+            }
             phezackores[i].body.x = phezackoreLocs[r].x*32;
             phezackores[i].body.y = phezackoreLocs[r].y*32;
             phezackores[i].data = {prevX:phezackoreLocs[r].x*32, prevY:phezackoreLocs[r].y*32, in:true, target:0};
@@ -373,7 +378,7 @@ window.onload = function() {
             distanceY = hpFull.centerY - phezackores[num].body.y;
             angle = Math.atan2(distanceY, distanceX);
         } else {
-            distanceX = phezackores[num].data.prevX - phezackores[num].body.x;
+            distanceX = phezackores[num].data.prevX - phezackores[num].body.x;//problem?
             distanceY = phezackores[num].data.prevY - phezackores[num].body.y;
             angle = Math.atan2(distanceY, distanceX);
         }
@@ -420,7 +425,8 @@ window.onload = function() {
     function update() {
         if (attackStatus !== "") {
             for (var i=0; i<phezackores.length; i++)
-                goToLocation(i);
+                if (phezackores[i].body)
+                    goToLocation(i);
         }
 
         textHP.text = "Health: " + health;
