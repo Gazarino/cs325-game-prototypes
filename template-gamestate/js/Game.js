@@ -1,8 +1,9 @@
+"use strict";
 
 BasicGame.Game = function (game) {
 
     //  When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
-
+    /*
     this.game;      //  a reference to the currently running game (Phaser.Game)
     this.add;       //  used to add sprites, text, groups, etc (Phaser.GameObjectFactory)
     this.camera;    //  a reference to the game camera (Phaser.Camera)
@@ -19,11 +20,13 @@ BasicGame.Game = function (game) {
     this.particles; //  the particle manager (Phaser.Particles)
     this.physics;   //  the physics manager (Phaser.Physics)
     this.rnd;       //  the repeatable random number generator (Phaser.RandomDataGenerator)
-
+    
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
+    */
     
-    // Create your own variables.
+    // For optional clarity, you can initialize
+    // member variables here. Otherwise, you will do it in create().
     this.bouncy = null;
 };
 
@@ -52,7 +55,7 @@ BasicGame.Game.prototype = {
         
         // When you click on the sprite, you go back to the MainMenu.
         this.bouncy.inputEnabled = true;
-        this.bouncy.events.onInputDown.add( function() { this.state.start('MainMenu'); }, this );
+        this.bouncy.events.onInputDown.add( function() { this.quitGame(); }, this );
     },
 
     update: function () {
@@ -67,7 +70,7 @@ BasicGame.Game.prototype = {
         this.bouncy.rotation = this.game.physics.arcade.accelerateToPointer( this.bouncy, this.game.input.activePointer, 500, 500, 500 );
     },
 
-    quitGame: function (pointer) {
+    quitGame: function () {
 
         //  Here you should destroy anything you no longer need.
         //  Stop music, delete sprites, purge caches, free resources, all that good stuff.

@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>Preserve Warapsha</title>
+	<script src="js/phaser.min.js"></script>
+	<!-- Boot.js must come first since it creates the BasicGame object
+	that stores all the states. -->
+	<script src="js/Boot.js"></script>
+	<script src="js/Preloader.js"></script>
+	<script src="js/MainMenu.js"></script>
+	<script src="js/Game.js"></script>
+	<!-- main.js must come last since it references the other ones. -->
+	<script src="js/main.js"></script>
+
+<style>
+body
+{
+    color: #777;
+    font-family: "Avenir", Verdana, sans-serif;
+}
+#readme
+{
+    margin-top: 10px;
+}
+</style>
+
+</head>
+<body>
+<div id="game"></div>
+<div id="readme">
+<h2>Preserve Warapsha</h2>
+<ul>
+
+<li><strong>High Concept:</strong>
+Survive and defeat enemies by warping around your bullets.
+</li>
+
+<li><strong>Theme:</strong>
+Preservationist
+</li>
+
+<li><strong>Mandated Variety:</strong>
+This game is a deterministic shooter with keyboard input and an achiever play style.
+</li>
+
+<li><strong>Player Experience Goals:</strong>
+To feel a sense of accomplishment after struggling during demanding gameplay.
+</li>
+
+<li><strong>Gameplay:</strong>
+(Recommended: play the in-game tutorial before reading this.)
+<ul>
+<li>Arrow Keys = move/rotate player</li>
+<li>Spacebar = warp player across the window center</li>
+<li>W/A/S/D = warp bullets up/left/down/right</li>
+<li>1/2/3 = change degree to switch bullets warp</li>
+<li>E = activate 5 second long invincibility</li>
+<li>The player's shot bullets will continuously orbit Warapsha. The player needs to both avoid bullets
+and move them around to defeat enemies. An enemy will come into play as often as every 12 seconds and
+shoot at the player. Enemies (and the player) explode after receiving 10 bullets (although the player can
+take up to 40 of his/her own). Survive and take out at least 5 enemies to win!</li>
+</ul>
+</li>
+
+<li><strong>Prototype Goal:</strong>
+Test a shooter where bullets can be manipulated and aiming is done to create bullet patterns as opposed to hitting targets.
+</li>
+
+<li><strong>Features:</strong>
+The ability to create and manipulate bullet patterns.
+</li>
+
+<li><strong>Setting/Premise:</strong>
+You are an explorer with a highly advanced mech that allows you to easily fly through deep space.
+One day you discovered a very unique celestial body which, despite being tiny, causes many things to orbit around it.
+You found that rather than being ultra dense, this place has the power to bend nearby space!
+While carefully studying it, small rocks of its surface began warping around and circling you.
+Unsure of how to react, you extended your mech's arm as if inviting an animal to sniff your hand.
+The movement of the rocks slowed, and one drifted to the outstretched hand of your mech, meeting with the fingertips.
+That's when you realized that this place, which you've now named "Warapsha", has a soul!
+As you spent more time on its surface, you communicated with Warapsha and became its friend!
+However, it wasn't long before more people stumbled upon Warapsha and made plans to change it forever...
+</li>
+
+<li><strong>Story:</strong>
+You try convincing your fellow humans to leave Warapsha alone, but they won't listen!
+Warapsha makes it clear to you that it doesn't want those people making it into their personal home and test subject.
+Determined to help, you embed some of Warapsha's DNA into your mech and your bullets, giving you the power
+to warp them around with Warapsha's help. It's time for battle! ...But something seems off with your mech.
+One of the other humans didn't mess with it when you entered their ship and tried to convince them not to attack, did they...?
+</li>
+
+<li><strong>Target Audience:</strong>
+Those who enjoy high-pressure gameplay and shoot-em-ups.
+</li>
+
+<li><strong>Play Time:</strong>
+2-3 minutes
+</li>
+
+<li><strong>Strategies:</strong>
+<ul>
+<li>If you're constantly getting hit by your own bullets, you're moving too much. Consider the fact that it's possible to win without using the arrow keys.</li>
+<li>Create helpful, recognizable bullet patterns by aiming and warping the bullets as they come out.</li>
+<li>Can't focus on the enemy because you're too worried about getting hit? Press E and take 'em out within 5 seconds.</li>
+</ul>
+</li>
+
+<li><strong>Prototype Assets:</strong>
+<ul>
+<li>**This game is based off the soundtrack of the anime "Vandread" (composed by Yasunori Iwasaki).
+The story and gameplay have very little in common with Vandread, but all of the music comes from it.
+Tracks used include "Super Vandread", "Vandread Meia", "Dread", "Ooinaru Gaika", and "Dogfight".</li>
+<li>Main Menu: <a href="http://www.ost-center.com/contenu/jaquettes/anime/155-01.jpg">Vandread OST Cover</a></li>
+<li>Game Background: <a href="http://hd-wall-papers.com/images/wallpapers/blue-planet-wallpaper/blue-planet-wallpaper-2.jpg">Blue Planet Wallpaper</a></li>
+<li>Explosion: <a href="http://hasgraphics.com/wp-content/uploads/2010/08/spritesheet2.png">spritesheet</a>,
+<a href="https://www.youtube.com/watch?v=XjOtGgxaX5g">sound effect</a></li>
+<li>Everything else is self-made.</li>
+</ul>
+</li>
+
+<li><strong>Prototype Closest Other Game:</strong>
+<ul>
+<li>Borrowing some code from the <a href="https://github.com/photonstorm/phaser-examples/blob/master/examples/virtualjoystick/dual%20sticks.js">Dual Sticks</a>
+	and <a href="https://github.com/photonstorm/phaser-examples/blob/master/examples/arcade%20physics/mass%20velocity%20test.js">Mass Velocity Test</a>
+Phaser examples.</li>
+</ul>
+</li>
+
+</ul>
+</div>
+</body>
+</html>
