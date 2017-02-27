@@ -32,6 +32,13 @@ GameStates.makeMainMenu = function( game, shared ) {
         game.state.start('Game');
     }
 
+		function autoTutorial () {
+				shared.practice = true;
+				shared.bonus = false;
+				music.stop();
+				game.state.start('Game');
+		}
+
     return {
 
         create: function () {
@@ -65,9 +72,10 @@ GameStates.makeMainMenu = function( game, shared ) {
 								practiceButton.x = game.width*.37;
 						}
 
-						textKilled = game.add.text(game.width/2, game.height-20, "High Score: "+shared.highScore, {font:"18px Arial", fill:"#ffffff", align:"center" });
+						textKilled = game.add.text(game.width/2, game.height-20, "Most Enemies Killed: "+shared.highScore, {font:"18px Arial", fill:"#ffffff", align:"center" });
 						textKilled.anchor.x = .5;
 						textKilled.anchor.y = .5;
+						game.time.events.add(Phaser.Timer.MINUTE*1.8, autoTutorial, this);
 				},
 
         update: function () {
