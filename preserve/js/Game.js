@@ -158,7 +158,7 @@ GameStates.makeGame = function( game, shared ) {
                 game.time.events.add(Phaser.Timer.SECOND*6, this.practiceEvent, this);
             } else if (shared.bonus) {
                 game.time.events.add(Phaser.Timer.SECOND*3, this.spawnEnemy, this);
-                game.time.events.add(Phaser.Timer.SECOND*84.2, this.destroyTrigger, this);
+                game.time.events.add(Phaser.Timer.SECOND*84.05, this.destroyTrigger, this);
                 game.time.events.add(Phaser.Timer.SECOND*86.5, quitGame, this);
             } else {
                 game.time.events.add(Phaser.Timer.SECOND*1.25, this.startFire, this);
