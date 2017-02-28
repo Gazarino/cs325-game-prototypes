@@ -158,7 +158,7 @@ GameStates.makeGame = function( game, shared ) {
                 game.time.events.add(Phaser.Timer.SECOND*6, this.practiceEvent, this);
             } else if (shared.bonus) {
                 game.time.events.add(Phaser.Timer.SECOND*3, this.spawnEnemy, this);
-                game.time.events.add(Phaser.Timer.SECOND*84, this.destroyTrigger, this);
+                game.time.events.add(Phaser.Timer.SECOND*84.4, this.destroyTrigger, this);
                 game.time.events.add(Phaser.Timer.SECOND*86.5, quitGame, this);
             } else {
                 game.time.events.add(Phaser.Timer.SECOND*1.25, this.startFire, this);
@@ -553,7 +553,10 @@ GameStates.makeGame = function( game, shared ) {
 
         winEvent: function () {
             game.add.tween(textPractice).to({alpha:1}, 1000, "Linear", true);
-            game.time.events.add(Phaser.Timer.SECOND*4.6, this.fadeText, this);
+            if (countdown < 6)
+                game.time.events.add(Phaser.Timer.SECOND*4.6, this.fadeText, this);
+            else if (countdown === 6)
+                game.time.events.add(Phaser.Timer.SECOND*5.2, this.fadeText, this);
             switch (countdown) {
                 case 0: textPractice.text = "You did it! Warapsha is going to stay the way it is."; break;
                 case 1: textPractice.text = "You got the \"Preservationist\" achievement!"; break;
@@ -562,13 +565,15 @@ GameStates.makeGame = function( game, shared ) {
                 case 3: textPractice.text = "Your warp field now lasts longer and has a shorter cooldown!"; break;
                 case 4: textPractice.text = "Your mech can now fly more quickly (hold Q)!"; break;
                 case 5: textPractice.text = "Your guns have been fixed! Fire with the F key!"; break;
-                case 6: textPractice.text = "You can now detonate all of your bullets\nat once by pressing the R key!"; break;
+                case 6: textPractice.text = "You can now reset/reload all of your bullets\nat once by pressing the R key!"; break;
                 case 7: textPractice.text = "You unlocked a new bonus mode in which\nenemies spawn more frequently! Enjoy!";
-                        game.time.events.add(Phaser.Timer.SECOND*9.25, quitGame, this);
+                        game.time.events.add(Phaser.Timer.SECOND*9, quitGame, this);
             }
             countdown++;
-            if (countdown < 8)
+            if (countdown < 7)
                 game.time.events.add(Phaser.Timer.SECOND*5.6, this.winEvent, this);
+            else if (countdown === 7)
+                game.time.events.add(Phaser.Timer.SECOND*6.2, this.winEvent, this);
         },
 
         fadeText: function () {
