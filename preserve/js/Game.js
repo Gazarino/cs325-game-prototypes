@@ -90,7 +90,7 @@ GameStates.makeGame = function( game, shared ) {
             extra = game.input.keyboard.addKeys({'Q':Phaser.KeyCode.Q,'E':Phaser.KeyCode.E,
                                                   'F':Phaser.KeyCode.F,'R':Phaser.KeyCode.R});
             spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-            game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
+            game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.UP, Phaser.Keyboard.DOWN ]);
 
             game.add.sprite(0, 0, 'warapsha');
 
