@@ -46,14 +46,20 @@ GameStates.makeGame = function( game, shared ) {
         music = null;
         //blue = {sprite:null, hp:100, hpChange:0, hpSprite:null, hpBarSprite:null, hpText:"100/100"};
         if (blue) {
+            blue.sprite.kill();
             blue.sprite = null;
+            blue.hpSprite.kill();
             blue.hpSprite = null;
+            blue.hpBarSprite.kill();
             blue.hpBarSprite = null;
         } blue = null;
         //red = {sprite:null, hp:100, hpChange:0, hpSprite:null, hpBarSprite:null, hpText:"100/100"};
         if (red) {
+            red.sprite.kill();
             red.sprite = null;
+            red.hpSprite.kill();
             red.hpSprite = null;
+            red.hpBarSprite.kill();
             red.hpBarSprite = null;
         } red = null;
         blast = null;
@@ -1057,6 +1063,14 @@ GameStates.makeGame = function( game, shared ) {
             blue.hpSprite.width = blue.hp;
             red.hpText.text = ""+red.hp+"%";
             red.hpSprite.width = red.hp;
+
+            if (blue.hp>50) blue.hpSprite.tint = 0x00e80f;
+            else if (blue.hp>25) blue.hpSprite.tint = 0xf6ff00;
+            else blue.hpSprite.tint = 0xff0000;
+            if (red.hp>50) red.hpSprite.tint = 0x00e80f;
+            else if (red.hp>25) red.hpSprite.tint = 0xf6ff00;
+            else red.hpSprite.tint = 0xff0000;//*/
+
             if (blue.hp===0 || red.hp===0) {
                 if (blue.hp===0 && red.hp===0) {
                     textPhase.text = "Game! It's a draw!";
