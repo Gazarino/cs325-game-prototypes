@@ -22,8 +22,8 @@ window.onload = function() {
         game.load.tilemap('map', 'assets/tile_properties.json', null, Phaser.Tilemap.TILED_JSON);
         game.load.image('tiles', 'assets/gridtiles.png');
         game.load.image('slider', 'assets/slidePart.png');
-        game.load.audio('hunter', 'assets/Crystal_Hunter_edit.wav');
-        game.load.audio('danger', 'assets/Videogame1_edit.wav');
+        game.load.audio('hunter', 'assets/Crystal_Hunter.mp3');
+        game.load.audio('danger', 'assets/Videogame1.mp3');
         game.load.image('HPf', 'assets/healthFull.png');
         game.load.image('HPe', 'assets/healthEmpty.png');
         game.load.image('RPf', 'assets/resourcesFull.png');
