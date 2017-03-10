@@ -1083,6 +1083,7 @@ GameStates.makeGame = function( game, shared ) {
                 if (blue.hp===0 && red.hp===0) {
                     textPhase.text = "Game! It's a draw!";
                     textPhase.fill = "#ffffff";
+                    textRevenge.text = "";
                 } else if (blue.hp === 0) {
                     if (waterGod) {
                       textPhase.text = "Water God Wins!";
