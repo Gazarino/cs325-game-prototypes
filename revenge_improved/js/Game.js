@@ -52,6 +52,8 @@ GameStates.makeGame = function( game, shared ) {
             blue.hpSprite = null;
             blue.hpBarSprite.kill();
             blue.hpBarSprite = null;
+            blue.hpText.kill();
+            blue.hpText = null;
         } blue = null;
         //red = {sprite:null, hp:100, hpChange:0, hpSprite:null, hpBarSprite:null, hpText:"100/100"};
         if (red) {
@@ -61,6 +63,8 @@ GameStates.makeGame = function( game, shared ) {
             red.hpSprite = null;
             red.hpBarSprite.kill();
             red.hpBarSprite = null;
+            red.hpText.kill();
+            red.hpText = null;
         } red = null;
         blast = null;
         blasts = null;
@@ -614,6 +618,10 @@ GameStates.makeGame = function( game, shared ) {
         battle: function () {
             if (gameOver)
                 return;
+            if (blasts.total > 0) {
+                game.time.events.add(Phaser.Timer.SECOND, this.battle, this);
+                return;
+            }
             var blueAct, bluePow, redAct, redPow;
             do {
                 switch (offset) {
@@ -851,7 +859,7 @@ GameStates.makeGame = function( game, shared ) {
                         game.physics.enable(red.sprite, Phaser.Physics.ARCADE);
                         red.sprite.width *= 1.35;
                         red.sprite.height *= 1.35;
-                        red.sprite.play('waterGod', 20, true, true); break;
+                        red.sprite.play('waterGod', 18, true, true); break;
                 case 2: textGod.text = "You cannot be forgiven\nfor stealing my powers!"; break;
                 case 3: textGod.text = "We won't miss this\nchance for revenge... Die!"; break;
                 case 4: textGod.text = "";
@@ -885,7 +893,7 @@ GameStates.makeGame = function( game, shared ) {
                         game.physics.enable(blue.sprite, Phaser.Physics.ARCADE);
                         blue.sprite.width *= 1.35;
                         blue.sprite.height *= 1.35;
-                        blue.sprite.play('earthGod', 20, true, true); break;
+                        blue.sprite.play('earthGod', 18, true, true); break;
                 case 2: textGod.text = "I don't have much of the\npower you took from me..."; break;
                 case 3: textGod.text = "But this should be enough\nto put you in your grave!"; break;
                 case 4: textGod.text = "";
