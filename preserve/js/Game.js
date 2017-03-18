@@ -321,7 +321,7 @@ GameStates.makeGame = function( game, shared ) {
             var shortestDist = 3000;
             var closest;
             for (var i = 0; i < bullets.children.length; i++) {
-                if (bullets.children[i].body) {
+                if (bullets.children[i].alive) {
                     var yDist = bullets.children[i].body.y - sprite.body.y;
                     var xDist = bullets.children[i].body.x - sprite.body.x;
                     var distance = Math.sqrt(xDist*xDist + yDist*yDist);
@@ -331,7 +331,8 @@ GameStates.makeGame = function( game, shared ) {
                     }
                 }
             }
-            sprite.rotation = Math.atan2(closest.body.y - sprite.body.y, closest.body.x - sprite.body.x);
+            if (closest)
+                sprite.rotation = Math.atan2(closest.body.y - sprite.body.y, closest.body.x - sprite.body.x);
             if (sprite.body.x < 15)
                 sprite.body.x = 15;
             if (sprite.body.x > game.width-50)
