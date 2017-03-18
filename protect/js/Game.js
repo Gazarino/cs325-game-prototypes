@@ -557,7 +557,7 @@ GameStates.makeGame = function( game, shared ) {
             rocket.kill();
         },
         beamHitAlien: function (beam, alien) {
-            mainGame.evalResist(alien, "beam", 24);
+            mainGame.evalResist(alien, "beam", 20);
             beam.kill();
         },
         shieldHitAlien: function (shield, alien) {
