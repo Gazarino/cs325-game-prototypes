@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>Zachary's Escape</title>
+	<script src="js/phaser.min.js"></script>
+	<!-- Boot.js must come first since it creates the BasicGame object
+	that stores all the states. -->
+	<script src="js/Boot.js"></script>
+	<script src="js/Preloader.js"></script>
+	<script src="js/MainMenu.js"></script>
+	<script src="js/Game.js"></script>
+	<!-- main.js must come last since it references the other ones. -->
+	<script src="js/main.js"></script>
+
+<style>
+body
+{
+    color: #777;
+    font-family: "Avenir", Verdana, sans-serif;
+}
+#readme
+{
+    margin-top: 10px;
+}
+</style>
+
+</head>
+<body>
+<div id="game"></div>
+<div id="readme">
+<h2>Zachary's Escape</h2>
+<ul>
+
+<li><strong>High Concept:</strong>
+Use various weapons by placing them in a moving environment and not letting any get left behind to stop enemies.
+</li>
+
+<li><strong>Theme:</strong>
+Person who needs to be protected (dogs are people too).
+</li>
+
+<li><strong>Player Experience Goals:</strong>
+To feel stressed, faced with a high-tension situation which promotes an action which puts the
+player at risk of losing the ability to fight.
+</li>
+
+<li><strong>Gameplay:</strong>
+<ul>
+<li>Survive for 3 minutes to make it out of the forest and win. If a single enemy makes it to Zachary, it's game over.</li>
+The player can make use of four different weapons to stop the enemy:
+<li>A standard laser gun, which shoots quickly in straight lines. (4 dmg/hit)</li>
+<li>A heat-seeking rocket launcher. The rockets move slowly and don't last as long, but they auto-target the nearest enemy. (8 dmg/hit)</li>
+<li>A sword. It can shoot beams with each swing. They don't travel far, but they move very fast. (20 dmg/hit)</li>
+<li>A spiny shield. It can push back enemies and damage them on contact, but too much contact will cause it to shatter. (2 dmg/hit)</li>
+<br>
+<li>To use a weapon, drag it into the play area. The laser gun and rocket launcher will automatically fire.
+The A and D keys rotate the currently held weapon. They also are used to swing the sword.</li>
+<li>Of course, only one weapon can be held at a time. Weapons can be dropped in the play area and be helpful, but be careful!
+If any go offscreen, there's no getting them back. The R key can be pressed to return all dropped weapons which
+are still on screen to your inventory.</li>
+<li>The spacebar toggles the speed Zachary is running. Enemies will take twice as long to get to him if
+he's running fast, but dropped weapons will be in much greater danger of going off screen!</li>
+<li>These enemies come in four sizes. The smallest only takes damage if its head is hit.
+The larger they are, the more health they have; the largest has 250 HP, 2.5 times that of the smallest!</li>
+<li>These enemies are also very adaptive. If one takes 50 damage in a row by the same weapon,
+that weapon will start doing only half the damage until a different weapon damages it!</li>
+</ul>
+</li>
+
+<li><strong>Prototype Goal:</strong>
+Test a defender-type game where the defending units can all be used at the start with no cost,
+but are continuously in danger of being lost.
+</li>
+
+<li><strong>Features:</strong>
+There are four unique weapons which can be used together if one or more are dropped. A constantly moving background requires
+players to make quick decisions regarding dropped weapons.
+</li>
+
+<li><strong>Setting/Premise:</strong>
+You are a caring owner of a little dog you've named Zachary, and you enjoy going to new places with him.
+One day you decided to take him into a nearby forest. After a bit of exploration, you find a case with
+some odd weapons inside it. Suddenly you hear an awful cry and look up to see other-worldly creatures running toward you!
+Little did you know, these creatures, called Ziclaudians, have stationed their base in this forest and you've
+stumbled onto their grounds! You grab the case of weapons and run the other way with Zack.
+You don't know why, but it seems the Ziclaudians just want Zack. It turns out they are collecting different Earth
+life forms and have never seen a little dog such as him before. You have to protect him!
+</li>
+
+<li><strong>Target Audience:</strong>
+Those who enjoy high-intensity, action-oriented gameplay.
+</li>
+
+<li><strong>Play Time:</strong>
+3 minutes
+</li>
+
+<li><strong>Strategies:</strong>
+<ul>
+<li>Tell Zack to run fast whenever there are no dropped weapons in play!</li>
+<li>Since it aims itself, there's little reason not to drop the rocket launcher in play. Use another weapon as it fires!</li>
+<li>Are the diclaudians dangerously close to lil' Zack? Drop the spiny shield in front of them and tell him to run fast!
+(Make sure to press R before it goes offscreen.)</li>
+<li>Don't want to drop weapons? Make sure to frequently change the one you're using.
+Be careful; even with Zack running, it often takes too long to kill them using only one weapon at a time.</li>
+</ul>
+</li>
+
+<li><strong>Prototype Assets:</strong>
+<ul>
+<li>All music is from <a href="https://www.youtube.com/playlist?list=PLNz9vaT1aEv35TAfmpmlo8QiUINeXLkT-">Monster Hunter Generations</a>;
+includes Jurassic Frontier battle, arena selection theme, quest clear theme, and quest failed theme.</li>
+<li>Sounds: <a href="https://www.dl-sounds.com/royalty-free/horror-woman-sfx/">Ziclaudian cries</a>,
+<a href="https://www.youtube.com/watch?v=KEMI66xTrf8">ziclaudian splatter</a>,
+<a href="https://www.youtube.com/watch?v=P-73kEVY5Gg">sword swing</a>,
+<a href="https://www.youtube.com/watch?v=CKsmnqOGlFk">shield shatter</a>.</li>
+<li>Sprites: <a href="http://tsgk.captainn.net/index.php?p=sheetinfo&t=600">Harvest Moon - kero</a>,
+<a href="http://orig05.deviantart.net/6a53/f/2015/035/8/1/snes_ultraman__majaba_spritesheet_by_cosbydaf-d8gnvwp.png">SNES Ultraman - majaba</a>,
+<a href="http://opengameart.org/content/various-inventory-24-pixel-icon-set">weapons</a>,
+<a href="http://opengameart.org/content/blood-effect-sprite-sheet">blood splatter</a>.</li>
+<li>Backgrounds: Constructed from <a href="http://thestoryteller01.deviantart.com/art/Forest-Clearing-Battleback-for-RPG-Maker-XP-512071602">RPG forest clearing</a>,
+<a href="http://s1135.photobucket.com/user/Lhassar/media/Resources/E2_spring2_by_Candacis_zpswjveoz6g.png.html">trees</a>,
+<a href="http://opengameart.org/content/forest-background-art">forest background</a>, and
+<a href="https://s-media-cache-ak0.pinimg.com/736x/59/1b/da/591bdaf221a0925b03d7877f576f8fb3.jpg">HM's kero fan-art</a>.</li>
+<li>(Everything else is self-made.)</li>
+</ul>
+</li>
+
+<li><strong>Prototype Closest Other Game:</strong>
+For this assignment, the small amount of code I borrowed was from my previous assignments (like the code in Warapsha enemies use to find the nearest bullet).
+I didn't borrow code from a Phaser example and I don't really know another game like this...
+</li>
+
+</ul>
+</div>
+</body>
+</html>
