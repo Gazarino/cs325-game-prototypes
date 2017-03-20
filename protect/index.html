@@ -13,24 +13,36 @@
 	<!-- main.js must come last since it references the other ones. -->
 	<script src="js/main.js"></script>
 
-<style>
-body
-{
-    color: #777;
-    font-family: "Avenir", Verdana, sans-serif;
-}
-#readme
-{
-    margin-top: 10px;
-}
-</style>
+	<style>
+			body {
+					color: #777;
+					font-family: "Avenir", Verdana, sans-serif;
+					font-size: 16px;
+					background-color: #48a3e6;
+					background-image:url(https://s26.postimg.org/aqep44kuh/KIU_Sky_2.jpg);
+					background-repeat:repeat-y;
+					background-size:100%;
+					margin-top:33px; margin-bottom:33px;
+			}
+			div.Banner {
+					margin-left:auto; margin-right:auto;
+					padding-top:10px; padding-bottom:20px;
+					width:100%; height:100%;
+					background-color:white; border-radius:33px;
+					-moz-border-radius: 33px; -webkit-border-radius: 33px;
+					-moz-box-shadow: 3px 3px 15px #000; -webkit-box-shadow: 3px 3px 15px #000;
+					box-shadow: 3px 3px 15px #000
+			}
+			#readme { margin-top: 33px }
+			ul.u {margin-left:33px; margin-right:33px}
+	</style>
 
 </head>
 <body>
-<div id="game"></div>
-<div id="readme">
-<h2>Zachary's Escape</h2>
-<ul>
+<div id="game"></div><br><br>
+<div class="Banner">
+<center><h2>Zachary's Escape</h2></center>
+<ul class="u">
 
 <li><strong>High Concept:</strong>
 Use various weapons by placing them in a moving environment and not letting any get left behind to stop enemies.
@@ -48,11 +60,11 @@ player at risk of losing the ability to fight.
 <li><strong>Gameplay:</strong>
 <ul>
 <li>Survive for 3 minutes to make it out of the forest and win. If a single enemy makes it to Zachary, it's game over.</li>
-The player can make use of four different weapons to stop the enemy:
-<li>A standard laser gun, which shoots quickly in straight lines. (4 dmg/hit)</li>
+<li>The player can make use of four different weapons to stop the enemy:</li>
+<ul><li>A standard laser gun, which shoots quickly in straight lines. (4 dmg/hit)</li>
 <li>A heat-seeking rocket launcher. The rockets move slowly and don't last as long, but they auto-target the nearest enemy. (8 dmg/hit)</li>
 <li>A sword. It can shoot beams with each swing. They don't travel far, but they move very fast. (20 dmg/hit)</li>
-<li>A spiny shield. It can push back enemies and damage them on contact, but too much contact will cause it to shatter. (2 dmg/hit)</li>
+<li>A spiny shield. It can push back enemies and damage them on contact, but too much contact will cause it to shatter. (2 dmg/hit)</li></ul>
 <br>
 <li>To use a weapon, drag it into the play area. The laser gun and rocket launcher will automatically fire.
 The A and D keys rotate the currently held weapon. They also are used to swing the sword.</li>
