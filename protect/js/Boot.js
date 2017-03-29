@@ -15,7 +15,7 @@ GameStates.makeBoot = function( game ) {
             if (game.device.desktop)
             {
                 //  If you have any desktop specific settings, they can go in here
-                game.scale.pageAlignHorizontally = true;
+                //game.scale.pageAlignHorizontally = true;
             }
             else
             {
@@ -24,7 +24,7 @@ GameStates.makeBoot = function( game ) {
                 game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
                 game.scale.setMinMax(480, 260, 1024, 768);
                 game.scale.forceLandscape = true;
-                game.scale.pageAlignHorizontally = true;
+                //game.scale.pageAlignHorizontally = true;
             }
 
             this.game.renderer.renderSession.roundPixels = true;
