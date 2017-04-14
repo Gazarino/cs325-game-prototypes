@@ -178,7 +178,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
             createCloud('cloud2');
             createCloud('cloud5');
 
-            if (shared.file1 && shared.visits1===1 || !shared.file1 && shared.visits2===1) {
+            if ((shared.file1 && shared.visits1===1 || !shared.file1 && shared.visits2===1) && shared.mode===0) {
                 if (shared.file1) shared.visits1++;
                 else shared.visits2++;
             }
@@ -220,9 +220,10 @@ GameStates.makeGame = function( game, shared, customControls ) {
                 trainingText = game.add.text(10, 10, "", {font:"13px Segoe UI Black", fill:"#000000", align:"left" });
                 trainingText.text = "S: Change Speed (*cannot do the 4 actions below without moving)\nA: Change Angle\nD: Change Depth\nF: Change Flight Mode\nQ: Loop/U-Turn (based on flight mode)\n"+
                                     "W: Show Wrath\nE: Keep direction of next action (A/S/D/F)\n\nT: Switch Training Mode\n"+
-                                    "SPACEBAR: Pause Music\nG: Restart Music\nUP & DOWN Arrow Keys / NUMPAD 1-4: Judge music section\n"+
-                                    "LEFT Arrow Key / NUMPAD 0: Boo at performer\nRIGHT Arrow Key / NUMPAD 5: Complement performer\n"+
-                                    "H: Hide this message";
+                                    "SPACEBAR: Pause Music\nG: Restart Music\nUP & DOWN Arrow Keys: Judge music section\n"+
+                                    "LEFT Arrow Key: Boo at performer\nRIGHT Arrow Key: Complement performer\n"+
+                                    "H: Toggle hide information";
+                if (shared.file1 && shared.device1 || !shared.file1 && shared.device2) trainingText.alpha = 0;
             }
             boo = game.add.audio('boo');
             wow = game.add.audio('wow');
@@ -238,7 +239,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
             this.stage.disableVisibilityChange = false;
         },
         makeDevice: function () {
-            if (device) {device.destroy();}
+            this.destroyDevice();
             if ((shared.file1 && shared.device1 && performer1) || (!shared.file1 && shared.device2 && performer1) ||
                    (!performer1 && shared.file1 && shared.device2) || (!performer1 && !shared.file1 && shared.device1)) {
                 device = game.add.sprite(302, 10, 'device');
@@ -247,6 +248,15 @@ GameStates.makeGame = function( game, shared, customControls ) {
                 device.data.speed = game.add.text(device.x+68, device.y+25, 0, {font:"18px Segoe UI Black", fill:"#000000"});
                 device.data.depth = game.add.text(device.x+68, device.y+44, 0, {font:"18px Segoe UI Black", fill:"#000000"});
                 device.data.flight = game.add.text(device.x+68, device.y+63, 0, {font:"18px Segoe UI Black", fill:"#000000"});
+            }
+        },
+        destroyDevice: function () {
+            if (device && device.data && device.data.angle) {
+                device.data.angle.destroy();
+                device.data.speed.destroy();
+                device.data.depth.destroy();
+                device.data.flight.destroy();
+                device.destroy();
             }
         },
         updateDevice: function () {
@@ -262,6 +272,22 @@ GameStates.makeGame = function( game, shared, customControls ) {
             device.data.speed.fill = "#000000";
             device.data.depth.fill = "#000000";
             device.data.flight.fill = "#000000";
+        },
+        deviceDisplay: function (bool) {
+            if (bool) {
+                device.data.angle.alpha = 1;
+                device.data.speed.alpha = 1;
+                device.data.depth.alpha = 1;
+                device.data.flight.alpha = 1;
+                device.alpha = 1;
+            } else {
+                device.data.angle.alpha = 0;
+                device.data.speed.alpha = 0;
+                device.data.depth.alpha = 0;
+                device.data.flight.alpha = 0;
+                device.alpha = 0;
+            }
+
         },
         createPet: function (type) {
             var pet = game.add.sprite(300, 300, type);
@@ -323,6 +349,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
                     player.data.performing = true;
                 } else {
                     winMusic.play();
+                    this.destroyDevice();
                     var p1 = shared.name1; var p2 = shared.name2;
                     if (!shared.file1) {p1 = shared.name2; p2 = shared.name1;}
                     textFinal.text = p1+": "+totalGrade1.perform+" performance points,\n"+
@@ -364,8 +391,8 @@ GameStates.makeGame = function( game, shared, customControls ) {
         killObj: function (obj) {obj.kill();},
         endSinglePlayer: function () {
             textFinal.text = "You got "+totalGrade1.perform+" points!\n";
-            var n1 = game.rnd.integerInRange(600, 1000);
-            var n2 = game.rnd.integerInRange(700, 900);
+            var n1 = game.rnd.integerInRange(800, 1000);
+            var n2 = game.rnd.integerInRange(1000, 1200);
             var n3 = game.rnd.integerInRange(800, 1200);
             textFinal.text+="Your competitors scored: "+n1+", "+n2+", & "+n3+".\n";
             var place = 4;
@@ -416,7 +443,11 @@ GameStates.makeGame = function( game, shared, customControls ) {
             if (movement.keep.downDuration(1))
                 toggle.keep = true;
 
-            if (device) this.updateDevice();
+            if (device && device.data && device.data.angle) this.updateDevice();
+            if (training.hide.downDuration(1) && device && device.data && device.data.angle) {
+                if (device.alpha===0) this.deviceDisplay(true);
+                else this.deviceDisplay(false);
+            }
 
             this.updateFlight(player);
             this.updateAngle(player);
@@ -468,19 +499,36 @@ GameStates.makeGame = function( game, shared, customControls ) {
             var prev = note.data.grade;
             if (note.alpha < 1) {
                 var speed = Math.round(player.body.acceleration.x/100);
-                if (speed===note.alpha*10) {note.data.grade+=2;  if (device) device.data.speed.fill="#0000cc";}
-                else if (Math.abs(speed-note.alpha*10) <= 1) {note.data.grade++;  if (device) device.data.speed.fill="#00cc00";}
+                if (speed===note.alpha*10) {
+                    note.data.grade+=2;
+                    if (device && device.data && device.data.speed) device.data.speed.fill="#0000cc";
+                } else if (Math.abs(speed-note.alpha*10) <= 1) {
+                    note.data.grade++;
+                    if (device && device.data && device.data.speed) device.data.speed.fill="#00cc00";
+                }
             } else {
-                if (loop.current!==0) {note.data.grade+=2;  if (device) device.data.flight.fill="#0000cc";}
-                else if ((note.data.len > 36 && player.animations.currentAnim.name==="glide") ||
-                    (note.data.len <=36 && player.animations.currentAnim.name==="fly"))
-                    {note.data.grade++;  if (device) device.data.flight.fill="#00cc00";}
-                if (note.data.pro===player.z || (note.data.pro===5 && player.z===6))
-                    {note.data.grade+=2;  if (device) device.data.depth.fill="#0000cc";}
-                else if (note.data.pro===player.z || note.data.pro===player.z-1)
-                    {note.data.grade++;  if (device) device.data.depth.fill="#00cc00";}
-                if (note.data.pit===(angle+5)) {note.data.grade+=2;  if (device) device.data.angle.fill="#0000cc";}
-                else if (Math.abs(note.data.pit-(angle+5)) <= 1) {note.data.grade++; if (device) device.data.angle.fill="#00cc00";}
+                if (loop.current!==0) {
+                    note.data.grade+=2;
+                    if (device && device.data && device.data.flight) device.data.flight.fill="#0000cc";
+                } else if ((note.data.len > 36 && player.animations.currentAnim.name==="glide") ||
+                    (note.data.len <=36 && player.animations.currentAnim.name==="fly")) {
+                    note.data.grade++;
+                    if (device && device.data && device.data.flight) device.data.flight.fill="#00cc00";
+                }
+                if (note.data.pro===player.z || (note.data.pro===5 && player.z===6)) {
+                    note.data.grade+=2;
+                    if (device && device.data && device.data.depth) device.data.depth.fill="#0000cc";
+                } else if (note.data.pro===player.z || note.data.pro===player.z-1) {
+                    note.data.grade++;
+                    if (device && device.data && device.data.depth) device.data.depth.fill="#00cc00";
+                }
+                if (note.data.pit===(angle+5)) {
+                    note.data.grade+=2;
+                    if (device && device.data && device.data.angle) device.data.angle.fill="#0000cc";
+                } else if (Math.abs(note.data.pit-(angle+5)) <= 1) {
+                    note.data.grade++;
+                    if (device && device.data && device.data.angle) device.data.angle.fill="#00cc00";
+                }
             }
             pointBin += (note.data.grade-prev);
             note.data.counter++;

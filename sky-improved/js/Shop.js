@@ -85,7 +85,7 @@ GameStates.makeShop = function( game, shared, customControls ) {
             rose_body.animations.add('sad', [19]); rose_body.animations.add('sad_talk', [20,21,20,21,20,19]);
             rose_body.animations.add('up', [22]); rose_body.animations.add('pout', [23]);
             rose_body.animations.add('side', [24]); rose_body.animations.add('side_talk', [25,26,25,26,25,24]);
-            rose_body.animations.add('laugh', [27]); rose_body.animations.add('laugh_talk', [28,29,28,27]);
+            rose_body.animations.add('laugh', [27]); rose_body.animations.add('laugh_talk', [28,29,28,29,28,29,28,27]);
             rose_body.animations.add('pout_talk', [30,31,30,31,30,23]);
 
             rose_eyes = game.add.sprite(game.width, game.height, 'rose_eyes');
@@ -319,7 +319,7 @@ GameStates.makeShop = function( game, shared, customControls ) {
                 this.setRoseAction("happy", "So what's your name?");
                 this.createInputBox();
                 submitButton = game.add.button(game.width/3, game.height-50, 'submitButton', this.checkName, null, 'over', 'out', 'down');
-                submitButton.scale.set(.5);
+                submitButton.scale.set(.45);
             } else if (anim==="glare") this.setRoseAction("pout", "What are you trying to pull?\nYou don't have enough money.");
             else if (textRose.text.includes("What are you trying to pull?")) {
                 mainGame.setRoseAction("normal", "Would you like to choose\na different one?");
@@ -341,8 +341,8 @@ GameStates.makeShop = function( game, shared, customControls ) {
                 this.setRoseAction("embarrassed", "You believed me, didn't you?\nI wouldn't overprice it\nthat much.");
             } else if (textRose.text.includes("overprice")) {
                 if (shared.file1 && shared.gold1<=300 || !shared.file1 && shared.gold2<=300)
-                    this.setRoseAction("happy", "I'll actually give it to you\nfor what you have. Here you go!");
-                else this.setRoseAction("happy", "I'll actually give it to you\nfor just 300 gold. Here you go!");
+                    this.setRoseAction("happy", "I'll actually give it to you\nfor what you have.\nHere you go!");
+                else this.setRoseAction("happy", "I'll actually give it to you\nfor just 300 gold.\nHere you go!");
                 coin.play();
                 if (shared.file1) {
                     shared.gold1 -= 300;  if (shared.gold1<0) shared.gold1=0;

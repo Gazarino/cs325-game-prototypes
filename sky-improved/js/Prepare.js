@@ -24,8 +24,8 @@ GameStates.makePrepare = function( game, shared ) {
         if (entryFee>0) coin.play();
         if (music) music.stop(); music = null;
         if (background) background.kill(); background = null;
-        if (submit1) shared.gold1 -= entryFee;
-        if (submit2) shared.gold2 -= entryFee;
+        if (submit1 && !submit1.data) shared.gold1 -= entryFee;
+        if (submit2 && !submit2.data) shared.gold2 -= entryFee;
         game.state.start('Game');
     }
 
