@@ -8,6 +8,10 @@ GameStates.makePrepare = function( game, shared ) {
     var player2Pets = null;
     var submit1 = null;
     var submit2 = null;
+    var entryFee;
+    var backButton;
+    var error;
+    var coin;
 
     function quitGame() {
         if (music) music.stop(); music = null;
@@ -17,9 +21,11 @@ GameStates.makePrepare = function( game, shared ) {
     }
 
     function startGame() {
+        if (entryFee>0) coin.play();
         if (music) music.stop(); music = null;
         if (background) background.kill(); background = null;
-
+        if (submit1) shared.gold1 -= entryFee;
+        if (submit2) shared.gold2 -= entryFee;
         game.state.start('Game');
     }
 
@@ -30,16 +36,24 @@ GameStates.makePrepare = function( game, shared ) {
             background = game.add.sprite(0, 0, 'background');
             background.tint = 0x6DB4FF;
             game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.UP, Phaser.Keyboard.DOWN ]);
+            backButton = game.add.button(10, game.height-40, 'backButton', quitGame, null, 'over', 'out', 'down');
+            backButton.height *= .45;
+            backButton.width *= .45;
 
             music = game.add.audio('prepareMusic');
             music.loopFull(1);
+            coin = game.add.audio('coin');
 
             this.createPetIcons();
 
-            //speechBubble = game.add.sprite(game.width-297, game.height-520, 'speechBubble');
-            //textRose = game.add.text(speechBubble.x+10, speechBubble.y+10, "",
-            //        {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
-
+            if (shared.mode===0) entryFee = 0;
+            else if (shared.mode===1) entryFee = 100;
+            else if (shared.mode===2) entryFee = 200;
+            if (shared.mode!==0)
+                game.add.text(game.width/2-100, 15, "Entry Fee: "+entryFee, {font:"22px Yu Gothic UI Semibold", fill:"#ffffff", align:"left" });
+            error = game.add.text(game.width/2, game.height-100, "You do not have enough gold.",
+                        {font:"20px Yu Gothic UI Semibold", fill:"#ffffff", align:"center" });
+            error.anchor.set(.5); error.alpha = 0;
             this.stage.disableVisibilityChange = true;
             game.input.onDown.add(this.selectPet, this);
         },
@@ -49,7 +63,7 @@ GameStates.makePrepare = function( game, shared ) {
             if (shared.mode===2 && !shared.file1) xx=.5;
 
             if (shared.file1 || shared.mode===2) {
-                game.add.text(xPlacement/xx, 100, shared.name1,
+                game.add.text(xPlacement/xx, 100, shared.name1+" ("+shared.gold1+" gold)",
                       {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
                 for (var i=0; i<shared.pets1.length; i++) {
                     var petText = game.add.text(xPlacement/xx, 200+50*i, shared.pets1[i].name,
@@ -63,7 +77,7 @@ GameStates.makePrepare = function( game, shared ) {
                 submit1.data = true;
             }
             if (!shared.file1 || shared.mode===2) {
-                game.add.text(xPlacement*xx, 100, shared.name2,
+                game.add.text(xPlacement*xx, 100, shared.name2+" ("+shared.gold2+" gold)",
                       {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
                 for (var i=0; i<shared.pets2.length; i++) {
                     var petText = game.add.text(xPlacement*xx, 200+50*i, shared.pets2[i].name,
@@ -77,25 +91,36 @@ GameStates.makePrepare = function( game, shared ) {
                 submit2.data = true;
             }
         },
+        fadeObj: function (obj) { game.add.tween(obj).to({alpha:0}, 500, "Linear", true); },
         evalSubmit1: function () {
-            for (var i=0; i<player1Pets.length; i++)
-                if (player1Pets[i].fill === "#ffff00") {
-                    var temp = shared.pets1[0];
-                    shared.pets1[0] = shared.pets1[i];
-                    shared.pets1[i] = temp;
-                } else player1Pets[i].fill = "#808080";
-            submit1.data = false;
-            if (shared.mode<2 || submit2 && !submit2.data) startGame();
+            if (shared.gold1 < entryFee) {
+                error.alpha = 1;
+                game.time.events.add(2000, mainGame.fadeObj, this, error);
+            } else {
+                for (var i=0; i<player1Pets.length; i++)
+                    if (player1Pets[i].fill === "#ffff00") {
+                        var temp = shared.pets1[0];
+                        shared.pets1[0] = shared.pets1[i];
+                        shared.pets1[i] = temp;
+                    } else player1Pets[i].fill = "#808080";
+                submit1.data = false;
+                if (shared.mode<2 || submit2 && !submit2.data) startGame();
+            }
         },
         evalSubmit2: function () {
-            for (var i=0; i<player2Pets.length; i++)
-                if (player2Pets[i].fill === "#ffff00") {
-                    var temp = shared.pets2[0];
-                    shared.pets2[0] = shared.pets2[i];
-                    shared.pets2[i] = temp;
-                } else player2Pets[i].fill = "#808080";
-            submit2.data = false;
-            if (shared.mode<2 || submit1 && !submit1.data) startGame();
+            if (shared.gold2 < entryFee) {
+                error.alpha = 1;
+                game.time.events.add(2000, mainGame.fadeObj, this, error);
+            } else {
+                for (var i=0; i<player2Pets.length; i++)
+                    if (player2Pets[i].fill === "#ffff00") {
+                        var temp = shared.pets2[0];
+                        shared.pets2[0] = shared.pets2[i];
+                        shared.pets2[i] = temp;
+                    } else player2Pets[i].fill = "#808080";
+                submit2.data = false;
+                if (shared.mode<2 || submit1 && !submit1.data) startGame();
+            }
         },
 
         selectPet: function () {

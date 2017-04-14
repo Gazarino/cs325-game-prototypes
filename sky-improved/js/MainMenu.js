@@ -60,13 +60,13 @@ GameStates.makeMainMenu = function( game, shared ) {
 						shopButton = game.add.button( game.width/2-5, 320, 'shopButton', startShop, null, 'over', 'out', 'down');
 						shopButton.anchor.set(.5);
 						shopButton.scale.set(.75);
-						practiceButton = game.add.button(100, 300, 'practiceButton', startPractice, null, 'over', 'out', 'down');
+						practiceButton = game.add.button(120, 300, 'practiceButton', startPractice, null, 'over', 'out', 'down');
 						practiceButton.anchor.set(.5);
 						practiceButton.scale.set(.75);
-						playButton = game.add.button(game.width/2-100, 475, 'playButton', startGame, null, 'over', 'out', 'down');
+						playButton = game.add.button(game.width-150, 300, 'playButton', startGame, null, 'over', 'out', 'down');
 						playButton.anchor.set(.5);
 						playButton.scale.set(.75);
-						competeButton = game.add.button(game.width/2+100, 475, 'competeButton', startCompetition, null, 'over', 'out', 'down');
+						competeButton = game.add.button(game.width/2-5, 475, 'competeButton', startCompetition, null, 'over', 'out', 'down');
 						competeButton.anchor.set(.5);
 						competeButton.scale.set(.75);
 						this.changeFile();
@@ -126,8 +126,6 @@ GameStates.makeMainMenu = function( game, shared ) {
 				},
 
         update: function () {
-
-
 						this.transformClouds();
         },
 

@@ -1,6 +1,6 @@
 "use strict";
 
-GameStates.makeShop = function( game, shared ) {
+GameStates.makeShop = function( game, shared, customControls ) {
     var music;
     var background;
     var creature1;
@@ -30,7 +30,7 @@ GameStates.makeShop = function( game, shared ) {
     var enteredName;
     var goldText;
     var goldAmount;
-    var petType;
+    var coin;
 
     function quitGame() {
         if (music) music.stop(); music = null;
@@ -55,6 +55,7 @@ GameStates.makeShop = function( game, shared ) {
 
             music = game.add.audio('shopMusic');
             music.loopFull(1);
+            coin = game.add.audio('coin');
             if (shared.file1) goldAmount = shared.gold1;
             else goldAmount = shared.gold2;
 
@@ -73,7 +74,7 @@ GameStates.makeShop = function( game, shared ) {
             creatureGroup.add(creature3);
 
             rose_body = game.add.sprite(game.width-300, game.height-407, 'rose_body');
-            rose_body.data = {speech:"", speechSpeed:50, speechTime:0};
+            rose_body.data = {speech:"", speechSpeed:40, speechTime:0};
             rose_body.animations.add('happy', [0]); rose_body.animations.add('happy_talk', [1,2,1,2,1,0]);
             rose_body.animations.add('tease', [3]); rose_body.animations.add('back', [4]);
             rose_body.animations.add('normal', [5]); rose_body.animations.add('normal_talk', [6,7,6,7,6,5]);
@@ -84,7 +85,7 @@ GameStates.makeShop = function( game, shared ) {
             rose_body.animations.add('sad', [19]); rose_body.animations.add('sad_talk', [20,21,20,21,20,19]);
             rose_body.animations.add('up', [22]); rose_body.animations.add('pout', [23]);
             rose_body.animations.add('side', [24]); rose_body.animations.add('side_talk', [25,26,25,26,25,24]);
-            rose_body.animations.add('laugh', [27]); rose_body.animations.add('laugh_talk', [28,29,28,29,28,27]);
+            rose_body.animations.add('laugh', [27]); rose_body.animations.add('laugh_talk', [28,29,28,27]);
             rose_body.animations.add('pout_talk', [30,31,30,31,30,23]);
 
             rose_eyes = game.add.sprite(game.width, game.height, 'rose_eyes');
@@ -101,7 +102,7 @@ GameStates.makeShop = function( game, shared ) {
             rose_eyes.animations.add('pout_blink', [27,28,29,28,27]); // x:103, y:112
 
             speechBubble = game.add.sprite(game.width-297, game.height-520, 'speechBubble');
-            textRose = game.add.text(speechBubble.x+10, speechBubble.y+10, "",
+            textRose = game.add.text(speechBubble.x+7, speechBubble.y+4, "",
                     {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
             goldText = game.add.text(15, 15, "Gold: "+goldAmount,
                     {font:"20px Yu Gothic UI Semibold", fill:"#ffffff", align:"left" });
@@ -109,11 +110,15 @@ GameStates.makeShop = function( game, shared ) {
                 this.setRoseAction("back", "");
                 if (shared.file1) shared.visits1++;
                 else shared.visits2++;
-            } else if (shared.file1 && shared.visits1===1 || !shared.file1 && shared.visits2===1) {
+            } else if (shared.file1 && shared.visits1===2 || !shared.file1 && shared.visits2===2) {
                 if (shared.file1) {shared.visits1++; this.setRoseAction("serious", shared.name1+"!\nI have something important\nfor you!");}
                 else {shared.visits2++; this.setRoseAction("serious", shared.name2+"!\nI have something important\nfor you!");}
+            } else {
+                this.setRoseAction("happy", "Welcome back! What can I\ndo for you?");
+                if (shared.file1 && shared.visits1>1 || !shared.file1 && shared.visits2>1)
+                    mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+                else mainGame.createOptions(2,"Buy a Creature", "Leave");
             }
-            else this.setRoseAction("happy", "Welcome back! What can I do for you?");
             this.stage.disableVisibilityChange = true;
             game.input.onDown.add(this.selectPet, this);
             cursors = game.input.keyboard.createCursorKeys();
@@ -316,13 +321,64 @@ GameStates.makeShop = function( game, shared ) {
                 submitButton = game.add.button(game.width/3, game.height-50, 'submitButton', this.checkName, null, 'over', 'out', 'down');
                 submitButton.scale.set(.5);
             } else if (anim==="glare") this.setRoseAction("pout", "What are you trying to pull?\nYou don't have enough money.");
-            else if (anim==="pout") {
+            else if (textRose.text.includes("What are you trying to pull?")) {
                 mainGame.setRoseAction("normal", "Would you like to choose\na different one?");
                 mainGame.createOptions(2,"Yeah.", "I don't think so.");
             }
             else if (textRose.text.includes("Alright! Thanks!")) {
                 mainGame.setRoseAction("happy", "Would you like to name it?");
                 mainGame.createOptions(2,"Of course!", "Nah.");
+            }
+            else if (textRose.text.includes("something important")) {
+                mainGame.setRoseAction("happy", "It's a device which measures\nyour pet's movements.");
+            }
+            else if (textRose.text.includes("device which measures")) {
+                mainGame.setRoseAction("joyful", "Sounds useful, huh? It only\ncosts 900 gold! Will you buy it?");
+                mainGame.createOptions(3,"...Can I get it for less?", "I don't have that much.", "Fine...");
+            } else if (anim==="tease") {
+                this.setRoseAction("laugh", "Hahahahahahaha~!");
+            } else if (textRose.text.includes("haha")) {
+                this.setRoseAction("embarrassed", "You believed me, didn't you?\nI wouldn't overprice it\nthat much.");
+            } else if (textRose.text.includes("overprice")) {
+                if (shared.file1 && shared.gold1<=300 || !shared.file1 && shared.gold2<=300)
+                    this.setRoseAction("happy", "I'll actually give it to you\nfor what you have. Here you go!");
+                else this.setRoseAction("happy", "I'll actually give it to you\nfor just 300 gold. Here you go!");
+                coin.play();
+                if (shared.file1) {
+                    shared.gold1 -= 300;  if (shared.gold1<0) shared.gold1=0;
+                    goldAmount = shared.gold1;  shared.device1=true;
+                } else {
+                    shared.gold2 -= 300;  if (shared.gold2<0) shared.gold2=0;
+                    goldAmount = shared.gold2;  shared.device2=true;
+                } goldText.text = "Gold: "+goldAmount;
+            } else if (textRose.text.includes("actually give") || textRose.text.includes("just take what you have")
+                          || textRose.text.includes("How about I just take")) {
+                mainGame.setRoseAction("normal", "So, is there anything I can\nhelp you with?");
+                mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+            } else if (anim==="serious") {
+                mainGame.setRoseAction("pout", "Are you trying to scam me?");
+            } else if (textRose.text.includes("scam")) {
+                mainGame.setRoseAction("side", "Well... I do actually want\nto get rid of this thing.");
+            } else if (textRose.text.includes("get rid of")) {
+                if (shared.file1 && shared.gold1<=300 || !shared.file1 && shared.gold2<=300)
+                    mainGame.setRoseAction("happy", "I'll just take what you have.\nThanks!");
+                else mainGame.setRoseAction("happy", "How about I just take\n300 gold? Thanks!");
+                coin.play();
+                if (shared.file1) {
+                    shared.gold1 -= 300;  if (shared.gold1<0) shared.gold1=0;
+                    goldAmount = shared.gold1;  shared.device1=true;
+                } else {
+                    shared.gold2 -= 300;  if (shared.gold2<0) shared.gold2=0;
+                    goldAmount = shared.gold2;  shared.device2=true;
+                } goldText.text = "Gold: "+goldAmount;
+            } else if (anim==="down") {
+                mainGame.setRoseAction("side", "Well... I do actually want\nto get rid of this thing.");
+            } else if (textRose.text.includes("Having trouble")) {
+                mainGame.setRoseAction("sad", "How can I help?");
+                mainGame.createOptions(4,"Change Angle Controls", "Change Speed Controls", "Change Depth Controls", "Change Trick Controls");
+            } else if (textRose.text.includes("free of charge")) {
+                mainGame.setRoseAction("happy", "Good luck! Is there anything\nelse you need?");
+                mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
             }
         },
         createOptions: function (num, txt1, txt2, txt3, txt4) {
@@ -385,24 +441,28 @@ GameStates.makeShop = function( game, shared ) {
             }
         },
         option1: function () { mainGame.destroyOptions();
-            if (textRose.text.includes("...\nIs that right?") && option1Text.text==="Yep!") {
+            if (option1Text.text==="Yep!") {
                 if (selectedCreature) {
                     if (shared.file1) shared.pets1.push({type:selectedCreature.data.species, name:inputBox.value, maxSpeed:500, stamina:500, strength:500});
                     else shared.pets2.push({type:selectedCreature.data.species, name:inputBox.value, maxSpeed:500, stamina:500, strength:500});
                     selectedCreature = null;
                     mainGame.setRoseAction("joyful", "Perfect. Need anything else?");
-                    mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+                    if (shared.file1 && shared.visits1>1 || !shared.file1 && shared.visits2>1)
+                        mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+                    else mainGame.createOptions(2,"Buy a Creature", "Leave");
                 } else {
                     if (shared.file1) shared.name1 = inputBox.value;
                     else shared.name2 = inputBox.value;
                     mainGame.setRoseAction("joyful", "Great! How can I help you,\n"+enteredName+"?");
-                    mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+                    if (shared.file1 && shared.visits1>1 || !shared.file1 && shared.visits2>1)
+                        mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+                    else mainGame.createOptions(2,"Buy a Creature", "Leave");
                 }
             } else if (option1Text.text==="Buy a Creature") {
                 choosingAllowed = true;
                 mainGame.setRoseAction("happy", "Alright. Show me which one\nyou want.");
                 submitButton = game.add.button(game.width/3, game.height-40, 'submitButton', mainGame.checkCreatureSelect, null, 'over', 'out', 'down');
-                submitButton.scale.set(.5);
+                submitButton.scale.set(.45);
             } else if (option1Text.text==="Yes.") {
                 if (goldAmount < selectedCreature.data.cost) {
                     mainGame.setRoseAction("glare", "");
@@ -411,7 +471,10 @@ GameStates.makeShop = function( game, shared ) {
                 } else {
                     mainGame.setRoseAction("joyful", "Alright! Thanks!");
                     goldAmount -= selectedCreature.data.cost;
+                    if (shared.file1) shared.gold1 = goldAmount;
+                    else shared.gold2 = goldAmount;
                     goldText.text = "Gold: "+goldAmount;
+                    coin.play();
                     enteredName = selectedCreature.data.realType;
                     selectedCreature.tint = 0xffffff;
                 }
@@ -419,28 +482,51 @@ GameStates.makeShop = function( game, shared ) {
                 choosingAllowed = true;
                 mainGame.setRoseAction("normal", "Which one?");
                 submitButton = game.add.button(game.width/3, game.height-40, 'submitButton', mainGame.checkCreatureSelect, null, 'over', 'out', 'down');
-                submitButton.scale.set(.5);
+                submitButton.scale.set(.45);
             } else if (option1Text.text==="Of course!"){
                 mainGame.setRoseAction("happy", "");
                 mainGame.createInputBox();
                 submitButton = game.add.button(game.width/3, game.height-40, 'submitButton', mainGame.checkName, null, 'over', 'out', 'down');
-                submitButton.scale.set(.5);
+                submitButton.scale.set(.45);
+            } else if (option1Text.text==="...Can I get it for less?") {
+                mainGame.setRoseAction("down", "");
+            } else if (option1Text.text==="Change Angle Controls") {
+                mainGame.setRoseAction("normal", "How do you want do divide\nup angle commands?");
+                mainGame.createOptions(3,"Use \"A\" for all tilting", "Use \"A\" to tilt up & \"Z\" to tilt down", "Cancel");
+            } else if (option1Text.text==="Use \"A\" for all tilting") {
+                mainGame.setRoseAction("happy", "Alright. I've shown your pets\nhow you want them to\nfollow orders, free of charge!");
+                if (shared.file1) customControls.angle1 = false;
+                else customControls.angle2 = false;
+            } else if (option1Text.text==="Make \"S\" handle all acceleration") {
+                mainGame.setRoseAction("happy", "Alright. I've shown your pets\nhow you want them to\nfollow orders, free of charge!");
+                if (shared.file1) customControls.speed1 = false;
+                else customControls.speed2 = false;
+            } else if (option1Text.text==="Use \"D\" alone to control depth") {
+                mainGame.setRoseAction("happy", "Alright. I've shown your pets\nhow you want them to\nfollow orders, free of charge!");
+                if (shared.file1) customControls.depth1 = false;
+                else customControls.depth2 = false;
+            } else if (option1Text.text==="Loop/U-turn with \"Q\" based on flight mode") {
+                mainGame.setRoseAction("happy", "Alright. I've shown your pets\nhow you want them to\nfollow orders, free of charge!");
+                if (shared.file1) customControls.loop1 = false;
+                else customControls.loop2 = false;
             }
         },
         option2: function () { mainGame.destroyOptions();
-            if (textRose.text.includes("... Is that right?") && option2Text.text==="Not quite...") {
+            if (option2Text.text==="Not quite...") {
                 mainGame.createInputBox();
                 mainGame.setRoseAction("normal", "");
                 submitButton = game.add.button(game.width/3, game.height-40, 'submitButton', mainGame.checkName, null, 'over', 'out', 'down');
-                submitButton.scale.set(.5);
+                submitButton.scale.set(.45);
             } else if (option2Text.text==="Change Controls") {
-
+                mainGame.setRoseAction("sad", "Oh... Having trouble getting\nyour pet to do what you\nwant it to?");
             } else if (option2Text.text==="Maybe not...") {
                 mainGame.setRoseAction("normal", "Would you like to choose\na different one?");
                 mainGame.createOptions(2,"Yeah.", "I don't think so.");
             } else if (option2Text.text==="I don't think so.") {
                 mainGame.setRoseAction("normal", "Is there anything else I can\nhelp you with?");
-                mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+                if (shared.file1 && shared.visits1>1 || !shared.file1 && shared.visits2>1)
+                    mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+                else mainGame.createOptions(2,"Buy a Creature", "Leave");
                 selectedCreature.tint = 0xffffff;
                 selectedCreature = null;
             } else if (option2Text.text==="Nah.") {
@@ -448,21 +534,63 @@ GameStates.makeShop = function( game, shared ) {
                     shared.pets1.push({type:selectedCreature.data.species, name:enteredName, maxSpeed:500, stamina:500, strength:500});
                 else
                     shared.pets2.push({type:selectedCreature.data.species, name:enteredName, maxSpeed:500, stamina:500, strength:500});
-
-                //console.log(selectedCreature.data.type);
                 selectedCreature = null;
                 mainGame.setRoseAction("normal", "Is there anything else I can\nhelp you with?");
-                mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+                if (shared.file1 && shared.visits1>1 || !shared.file1 && shared.visits2>1)
+                    mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
+                else mainGame.createOptions(2,"Buy a Creature", "Leave");
+            } else if (option2Text.text==="I don't have that much.") {
+                if (shared.file1 && shared.gold1 < 900 || !shared.file1 && shared.gold2)
+                    mainGame.setRoseAction("tease", "");
+                else
+                    mainGame.setRoseAction("serious", "");
+            } else if (option2Text.text==="Leave") {
+                mainGame.setRoseAction("happy", "Come back soon!");
+                game.time.events.add(Phaser.Timer.SECOND*3, quitGame, this);
+            } else if (option2Text.text==="Change Speed Controls") {
+                mainGame.setRoseAction("normal", "How do you want do divide\nup speed commands?");
+                mainGame.createOptions(3,"Make \"S\" handle all acceleration", "Use \"S\" to speed up & \"X\" to slow down", "Cancel");
+            } else if (option2Text.text==="Use \"A\" to tilt up & \"Z\" to tilt down") {
+                mainGame.setRoseAction("happy", "Alright. I've shown your pets\nhow you want them to\nfollow orders, free of charge!");
+                if (shared.file1) customControls.angle1 = true;
+                else customControls.angle2 = true;
+            } else if (option2Text.text==="Use \"S\" to speed up & \"X\" to slow down") {
+                mainGame.setRoseAction("happy", "Alright. I've shown your pets\nhow you want them to\nfollow orders, free of charge!");
+                if (shared.file1) customControls.speed1 = true;
+                else customControls.speed2 = true;
+            } else if (option2Text.text==="Use \"D\" to move far & \"C\" to move close") {
+                mainGame.setRoseAction("happy", "Alright. I've shown your pets\nhow you want them to\nfollow orders, free of charge!");
+                if (shared.file1) customControls.depth1 = true;
+                else customControls.depth2 = true;
+            } else if (option2Text.text==="Use \"Q\" to Loop & \"R\" to U-turn") {
+                mainGame.setRoseAction("happy", "Alright. I've shown your pets\nhow you want them to\nfollow orders, free of charge!");
+                if (shared.file1) customControls.loop1 = true;
+                else customControls.loop2 = true;
             }
         },
         option3: function () { mainGame.destroyOptions();
             if (option3Text.text==="Leave") {
                 mainGame.setRoseAction("happy", "Come back soon!");
                 game.time.events.add(Phaser.Timer.SECOND*3, quitGame, this);
+            } else if (option3Text.text === "Fine...") {
+                if (shared.file1 && shared.gold1 < 900 || !shared.file1 && shared.gold2 < 900)
+                    mainGame.setRoseAction("serious", "");
+                else
+                    mainGame.setRoseAction("tease", "");
+            } else if (option3Text.text==="Change Depth Controls") {
+                mainGame.setRoseAction("normal", "How do you want do divide\nup depth commands?");
+                mainGame.createOptions(3,"Use \"D\" alone to control depth", "Use \"D\" to move far & \"C\" to move close", "Cancel");
+            } else if (option3Text.text==="Cancel") {
+                mainGame.setRoseAction("side", "Okay. Need anything else?");
+                mainGame.createOptions(3,"Buy a Creature", "Change Controls", "Leave");
             }
         },
         option4: function () { mainGame.destroyOptions();
-
+            if (option4Text.text==="Change Trick Controls") {
+                mainGame.setRoseAction("normal", "How do you want do divide\nup trick commands?");
+                mainGame.createOptions(3,"Loop/U-turn with \"Q\" based on flight mode",
+                                      "Use \"Q\" to Loop & \"R\" to U-turn", "Cancel");
+            }
         },
         destroyOptions: function () {
             if (option1Text) option1Text.destroy();

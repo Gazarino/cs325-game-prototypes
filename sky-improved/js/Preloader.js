@@ -38,6 +38,7 @@ GameStates.makePreloader = function( game ) {
 
             game.load.image('note', 'assets/note.jpg');
             game.load.image('notebox', 'assets/notebox.jpg');
+						game.load.image('device', 'assets/device.jpg');
 
 						//game.load.spritesheet('title_griffin', 'assets/unused_royal_griffin.png', 220, 175, 21);
 
@@ -65,6 +66,7 @@ GameStates.makePreloader = function( game ) {
 						game.load.audio('wrath_pheonix', 'assets/pheonix_sped.mp3');
 						game.load.audio('prepareMusic', 'assets/starting competition.mp3');
 						game.load.audio('winMusic', 'assets/win theme.mp3');
+						game.load.audio('coin', 'assets/coin.mp3');
         },
 
         create: function () {

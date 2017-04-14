@@ -1,6 +1,6 @@
 "use strict";
 
-GameStates.makeGame = function( game, shared ) {
+GameStates.makeGame = function( game, shared, customControls ) {
     // Create your own variables.
     var player;
     var music;
@@ -51,11 +51,17 @@ GameStates.makeGame = function( game, shared ) {
     var backButton;
 
     var winMusic;
+    var numpad;
+    var extraKeys;
+    var moneyText;
+    var device;
+    var performer1;
 
     function quitGame() {
         if (trainingMusic) trainingMusic.stop();
         if (music) music.stop();
         if (winMusic) winMusic.stop();
+        if (device) device.destroy();
 
         player.destroy();
         music = null;
@@ -102,6 +108,7 @@ GameStates.makeGame = function( game, shared ) {
         textFinal.destroy();
         trainingMusic = null;
         if (trainingText) trainingText.destroy();
+        if (moneyText) moneyText.destroy();
         backButton.destroy();
 
         //  Then let's go back to the main menu.
@@ -113,11 +120,19 @@ GameStates.makeGame = function( game, shared ) {
     var mainGame = {
         create: function () {
             cursors = game.input.keyboard.createCursorKeys();
+            numpad = game.input.keyboard.addKeys({'boo':Phaser.Keyboard.NUMPAD_0,
+                                                  'one':Phaser.Keyboard.NUMPAD_1,
+                                                  'two':Phaser.Keyboard.NUMPAD_2,
+                                                  'three':Phaser.Keyboard.NUMPAD_3,
+                                                  'four':Phaser.Keyboard.NUMPAD_4,
+                                                  'wow':Phaser.Keyboard.NUMPAD_5});
             movement = game.input.keyboard.addKeys( { 'loop': Phaser.KeyCode.Q, 'angle': Phaser.KeyCode.A,
                                                     'wrath': Phaser.KeyCode.W, 'speed': Phaser.KeyCode.S,
                                                     'keep': Phaser.KeyCode.E, 'depth': Phaser.KeyCode.D,
                                                     'flight': Phaser.KeyCode.F } );
-            training = game.input.keyboard.addKeys({ 'pause':Phaser.Keyboard.SPACEBAR, 'reset': Phaser.KeyCode.R,
+            extraKeys = game.input.keyboard.addKeys({'angle':Phaser.KeyCode.Z, 'speed':Phaser.KeyCode.X,
+                                                      'depth':Phaser.KeyCode.C, 'reverse':Phaser.KeyCode.R});
+            training = game.input.keyboard.addKeys({ 'pause':Phaser.Keyboard.SPACEBAR, 'reset': Phaser.KeyCode.G,
                                                       'mode':Phaser.KeyCode.T, 'hide':Phaser.KeyCode.H});
             game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.UP, Phaser.Keyboard.DOWN ]);
             playMusic = true;
@@ -125,6 +140,7 @@ GameStates.makeGame = function( game, shared ) {
             background.tint = 0x6DB4FF;
             clouds = [];
             totalSections = 13;
+            performer1 = true;
             trickTime = 0;
             currentSection = {points:0, notes:0};
             lastSection = -1;
@@ -162,8 +178,15 @@ GameStates.makeGame = function( game, shared ) {
             createCloud('cloud2');
             createCloud('cloud5');
 
+            if (shared.file1 && shared.visits1===1 || !shared.file1 && shared.visits2===1) {
+                if (shared.file1) shared.visits1++;
+                else shared.visits2++;
+            }
+
             notebox = game.add.sprite(game.width-302, 5, 'notebox');
             notes = game.add.group();
+
+            this.makeDevice();
 
             music = game.add.audio('song1');
             trainingMusic = game.add.audio('practiceMusic');
@@ -182,7 +205,7 @@ GameStates.makeGame = function( game, shared ) {
             textCount = game.add.text(game.width/2, game.height*.85, "Switching roles in ", {font:"24px Arial Black", fill:"#000000", align:"center" });
             textCount.alpha = 0;
             textCount.anchor.set(.5);
-            readyText = game.add.text(game.width/2, game.height/5, "Press R when ready.", {font:"20px Arial Black", fill:"#000000", align:"center" });
+            readyText = game.add.text(game.width/2, game.height/5, "Press G to start.", {font:"20px Arial Black", fill:"#000000", align:"center" });
             readyText.anchor.set(.5);
             textFinal = game.add.text(game.width/2, game.height/2, "", {font:"22px Arial Black", fill:"#000000", align:"center" });
             textFinal.anchor.set(.5);
@@ -197,8 +220,8 @@ GameStates.makeGame = function( game, shared ) {
                 trainingText = game.add.text(10, 10, "", {font:"13px Segoe UI Black", fill:"#000000", align:"left" });
                 trainingText.text = "S: Change Speed (*cannot do the 4 actions below without moving)\nA: Change Angle\nD: Change Depth\nF: Change Flight Mode\nQ: Loop/U-Turn (based on flight mode)\n"+
                                     "W: Show Wrath\nE: Keep direction of next action (A/S/D/F)\n\nT: Switch Training Mode\n"+
-                                    "SPACEBAR: Pause Music\nR: Reset Music\nUP/DOWN Arrow Keys: Judge music section\n"+
-                                    "LEFT Arrow Key: Boo at performer\nRIGHT Arrow Key: Complement performer\n"+
+                                    "SPACEBAR: Pause Music\nG: Restart Music\nUP & DOWN Arrow Keys / NUMPAD 1-4: Judge music section\n"+
+                                    "LEFT Arrow Key / NUMPAD 0: Boo at performer\nRIGHT Arrow Key / NUMPAD 5: Complement performer\n"+
                                     "H: Hide this message";
             }
             boo = game.add.audio('boo');
@@ -207,11 +230,38 @@ GameStates.makeGame = function( game, shared ) {
             textBooWow.anchor.y = .5;
             textBooWow.fontStyle = "italic";
             textBooWow.alpha = 0;
+            moneyText = game.add.text(game.width/2, game.height-100, "", {font:"22px Segoe UI Black", fill:"#000000", align:"center" });
             judgeCooldown = 10000;
             judgeGrade = 0;
             this.game.onPause.add(this.pauseMusic, this);
             this.game.onResume.add(this.resumeMusic, this);
             this.stage.disableVisibilityChange = false;
+        },
+        makeDevice: function () {
+            if (device) {device.destroy();}
+            if ((shared.file1 && shared.device1 && performer1) || (!shared.file1 && shared.device2 && performer1) ||
+                   (!performer1 && shared.file1 && shared.device2) || (!performer1 && !shared.file1 && shared.device1)) {
+                device = game.add.sprite(302, 10, 'device');
+                device.data = {angle:null, speed:null, depth:null, flight:null};
+                device.data.angle = game.add.text(device.x+68, device.y+6, 0, {font:"18px Segoe UI Black", fill:"#000000"});
+                device.data.speed = game.add.text(device.x+68, device.y+25, 0, {font:"18px Segoe UI Black", fill:"#000000"});
+                device.data.depth = game.add.text(device.x+68, device.y+44, 0, {font:"18px Segoe UI Black", fill:"#000000"});
+                device.data.flight = game.add.text(device.x+68, device.y+63, 0, {font:"18px Segoe UI Black", fill:"#000000"});
+            }
+        },
+        updateDevice: function () {
+            var speed = Math.round(player.body.acceleration.x/100);
+            var flight = 0;
+            if (player.animations.currentAnim.name==="glide") flight = 1;
+            if (loop.current!==0) flight = 2;
+            device.data.angle.text = angle;
+            device.data.speed.text = speed;
+            device.data.depth.text = player.z;
+            device.data.flight.text = flight;
+            device.data.angle.fill = "#000000";
+            device.data.speed.fill = "#000000";
+            device.data.depth.fill = "#000000";
+            device.data.flight.fill = "#000000";
         },
         createPet: function (type) {
             var pet = game.add.sprite(300, 300, type);
@@ -249,10 +299,12 @@ GameStates.makeGame = function( game, shared ) {
             if (countdown===3) {
                 if (textCount.text.includes("Switch")) {
                     player.destroy();
+                    performer1 = false;
+                    this.makeDevice();
                     if (!shared.file1) player = this.createPet(shared.pets1[0].type);
                     else player = this.createPet(shared.pets2[0].type);
                     player.x = -player.width;
-                    player.body.acceleration.x=250;
+                    player.body.acceleration.x=200;
                     player.play('fly', 16, true, true);
                     inSky.add(player);
                     while (player.z!==3)
@@ -271,15 +323,23 @@ GameStates.makeGame = function( game, shared ) {
                     player.data.performing = true;
                 } else {
                     winMusic.play();
-                    textFinal.text = "1st performer: "+totalGrade1.perform+" performance points,\n"+
+                    var p1 = shared.name1; var p2 = shared.name2;
+                    if (!shared.file1) {p1 = shared.name2; p2 = shared.name1;}
+                    textFinal.text = p1+": "+totalGrade1.perform+" performance points,\n"+
                                     totalGrade1.judge+" judgement points.\n"+
-                                   "2nd performer: "+totalGrade2.perform+" performance points,\n"+
+                                   p2+": "+totalGrade2.perform+" performance points,\n"+
                                    totalGrade2.judge+" judgement points.\n\n";
-                    if (totalGrade1.perform+totalGrade1.judge > totalGrade2.perform+totalGrade2.judge)
-                        textFinal.text+="Player 1 wins with a total of "+(totalGrade1.perform+totalGrade1.judge)+" points!";
-                    else if (totalGrade1.perform+totalGrade1.judge < totalGrade2.perform+totalGrade2.judge)
-                        textFinal.text+="Player 2 wins with a total of "+(totalGrade2.perform+totalGrade2.judge)+" points!";
-                    else
+                    if (totalGrade1.perform+totalGrade1.judge > totalGrade2.perform+totalGrade2.judge) {
+                        textFinal.text+=""+p1+" wins with a total of "+(totalGrade1.perform+totalGrade1.judge)+" points!";
+                        moneyText.text = p1+" has been awarded 500 gold!";
+                        if (shared.file1) shared.gold1+=500;
+                        else shared.gold2+=500;
+                    } else if (totalGrade1.perform+totalGrade1.judge < totalGrade2.perform+totalGrade2.judge) {
+                        textFinal.text+=""+p2+" wins with a total of "+(totalGrade2.perform+totalGrade2.judge)+" points!";
+                        moneyText.text = p2+" has been awarded 500 gold!";
+                        if (shared.file1) shared.gold2+=500;
+                        else shared.gold1+=500;
+                    } else
                         textFinal.text+="It's a draw!";
                     backButton = game.add.button(10, game.height-40, 'backButton', quitGame, null, 'over', 'out', 'down');
                     backButton.height *= .45;
@@ -304,8 +364,28 @@ GameStates.makeGame = function( game, shared ) {
         killObj: function (obj) {obj.kill();},
         endSinglePlayer: function () {
             textFinal.text = "You got "+totalGrade1.perform+" points!\n";
+            var n1 = game.rnd.integerInRange(600, 1000);
+            var n2 = game.rnd.integerInRange(700, 900);
+            var n3 = game.rnd.integerInRange(800, 1200);
+            textFinal.text+="Your competitors scored: "+n1+", "+n2+", & "+n3+".\n";
+            var place = 4;
+            if (totalGrade1.perform>=n1) place--;
+            if (totalGrade1.perform>=n2) place--;
+            if (totalGrade1.perform>=n3) place--;
+            if (place===1) {
+                textFinal.text+="You won 1st place! You got 1000 gold!";
+                if (shared.file1) shared.gold1 += 1000;
+                else shared.gold2 += 1000;
+            } else if (place===2) {
+                textFinal.text+="You won 2nd place! You got 500 gold!";
+                if (shared.file1) shared.gold1 += 500;
+                else shared.gold2 += 500;
+            } else if (place===3) {
+                textFinal.text+="You won 3rd place! You got 250 gold!";
+                if (shared.file1) shared.gold1 += 250;
+                else shared.gold2 += 250;
+            } else textFinal.text+="Better luck next time...";
             winMusic.play();
-            //textFinal.text+="It's a draw!";
             backButton = game.add.button(10, game.height-40, 'backButton', quitGame, null, 'over', 'out', 'down');
             backButton.height *= .45;
             backButton.width *= .45;
@@ -335,7 +415,9 @@ GameStates.makeGame = function( game, shared ) {
                 this.readJudgements();
             if (movement.keep.downDuration(1))
                 toggle.keep = true;
-            //if (!player || !player.animations || !player.body) return;
+
+            if (device) this.updateDevice();
+
             this.updateFlight(player);
             this.updateAngle(player);
             this.updateSpeed(player);
@@ -386,15 +468,19 @@ GameStates.makeGame = function( game, shared ) {
             var prev = note.data.grade;
             if (note.alpha < 1) {
                 var speed = Math.round(player.body.acceleration.x/100);
-                if (speed===note.alpha*10) note.data.grade+=2;
-                else if (Math.abs(speed-note.alpha*10) <= 1) note.data.grade++;
+                if (speed===note.alpha*10) {note.data.grade+=2;  if (device) device.data.speed.fill="#0000cc";}
+                else if (Math.abs(speed-note.alpha*10) <= 1) {note.data.grade++;  if (device) device.data.speed.fill="#00cc00";}
             } else {
-                if ((note.data.len > 27 && player.animations.currentAnim.name==="glide") ||
-                    (note.data.len <=27 && player.animations.currentAnim.name==="fly") || loop.current!==0)
-                    {note.data.grade++;}
-                if (note.data.pro===player.z || note.data.pro===player.z-1) {note.data.grade++;}
-                if (note.data.pit===(angle+5)) {note.data.grade+=2;}
-                else if (Math.abs(note.data.pit-(angle+5)) <= 1) {note.data.grade++;}
+                if (loop.current!==0) {note.data.grade+=2;  if (device) device.data.flight.fill="#0000cc";}
+                else if ((note.data.len > 36 && player.animations.currentAnim.name==="glide") ||
+                    (note.data.len <=36 && player.animations.currentAnim.name==="fly"))
+                    {note.data.grade++;  if (device) device.data.flight.fill="#00cc00";}
+                if (note.data.pro===player.z || (note.data.pro===5 && player.z===6))
+                    {note.data.grade+=2;  if (device) device.data.depth.fill="#0000cc";}
+                else if (note.data.pro===player.z || note.data.pro===player.z-1)
+                    {note.data.grade++;  if (device) device.data.depth.fill="#00cc00";}
+                if (note.data.pit===(angle+5)) {note.data.grade+=2;  if (device) device.data.angle.fill="#0000cc";}
+                else if (Math.abs(note.data.pit-(angle+5)) <= 1) {note.data.grade++; if (device) device.data.angle.fill="#00cc00";}
             }
             pointBin += (note.data.grade-prev);
             note.data.counter++;
@@ -410,6 +496,13 @@ GameStates.makeGame = function( game, shared ) {
                 var gradeText = game.add.text(note.x, note.y+105, "+"+grade, {font:"14px Arial Black", fill:"#000000", align:"center" });
                 game.time.events.add(1200, this.fadeObj, this, gradeText);
                 game.time.events.add(1800, this.destroyNoteText, this, gradeText, -1);
+                if (music.currentTime > 110000 && totalGrade1.perform >= 500 && moneyText.alpha===1) {
+                    var amount = game.rnd.integerInRange(50, 300);
+                    moneyText.text = "You've attracted an audience!\nYou have received "+amount+" gold!";
+                    if (shared.file1) shared.gold1+=amount;
+                    else shared.gold2+=amount;
+                    game.time.events.add(8000, this.fadeObj, this, moneyText);
+                }
             } else {
                 var grade = Math.round((note.data.grade/note.data.counter)*((note.data.len+100)/100)*((note.data.pro+7)/8));
                 if (textCount.text.includes("Switch")) {
@@ -460,8 +553,11 @@ GameStates.makeGame = function( game, shared ) {
             judgeGrade = 0;
         },
         readJudgements: function () {
-            if ((cursors.left.downDuration(1) || cursors.right.downDuration(1)) && music.currentTime > judgeCooldown) {
-                if (cursors.left.downDuration(1)) {
+            var booing = false; var wowing = false;
+            if (cursors.left.downDuration(1) || numpad.boo.downDuration(1)) booing = true;
+            if (cursors.right.downDuration(1) || numpad.wow.downDuration(1)) wowing = true;
+            if ((booing || wowing) && music.currentTime > judgeCooldown) {
+                if (booing) {
                     boo.play(); textBooWow.text = "     BOOOOOOOOOOOOOOOOO!!!";
                     game.time.events.add(2000, this.fadeObj, this, textBooWow);
                 }
@@ -495,6 +591,10 @@ GameStates.makeGame = function( game, shared ) {
                 var t = Math.floor((10000-(judgeCooldown-music.currentTime))/2);
                 textBooWow.x = game.width-t;
             }
+            if (numpad.one.downDuration(1)) judgeGrade = 1;
+            else if (numpad.two.downDuration(1)) judgeGrade = 2;
+            else if (numpad.three.downDuration(1)) judgeGrade = 3;
+            else if (numpad.four.downDuration(1)) judgeGrade = 4;
             if (cursors.up.downDuration(1)) {
                 if (judgeGrade < 4)
                     judgeGrade++;
@@ -511,6 +611,21 @@ GameStates.makeGame = function( game, shared ) {
                 judgeText.alpha = .3;
                 game.time.events.add(1000, this.fadeObj, this, judgeText);
             }
+        },
+        playerUsingCustom: function (command) {
+            var currentPlayer=1;
+            if (!textCount.text.includes("Switch") && shared.file1 || textCount.text.includes("Switch") && !shared.file1)
+                currentPlayer=2;
+            if (command==="angle" && currentPlayer===1) return customControls.angle1;
+            else if (command==="angle" && currentPlayer===2) return customControls.angle2;
+            else if (command==="speed" && currentPlayer===1) return customControls.speed1;
+            else if (command==="speed" && currentPlayer===2) return customControls.speed2;
+            else if (command==="depth" && currentPlayer===1) return customControls.depth1;
+            else if (command==="depth" && currentPlayer===2) return customControls.depth2;
+            else if (command==="loop" && currentPlayer===1) return customControls.loop1;
+            else if (command==="loop" && currentPlayer===2) return customControls.loop2;
+            else if (command==="keep" && currentPlayer===1) return customControls.keep1;
+            else if (command==="keep" && currentPlayer===2) return customControls.keep2;
         },
         updateFlight: function (pet) {
             if (movement.flight.downDuration(1)) {
@@ -529,8 +644,20 @@ GameStates.makeGame = function( game, shared ) {
                 else if (pet.body.acceleration.x < 400) pet.animations.currentAnim.speed = 17;
                 else pet.animations.currentAnim.speed = 18;
             }
-            if (movement.loop.downDuration(1) && loop.current===0 && (pet.body.acceleration.x >= 200 && pet.animations.currentAnim.name==="fly" ||
-                          pet.animations.currentAnim.name==="glide" && pet.body.acceleration.x >= 300)) {
+            var custom = this.playerUsingCustom("loop");
+            if (custom && extraKeys.reverse.downDuration(1))
+                pet.play('fly', 16, true, true);
+            else if (custom && movement.loop.downDuration(1) && pet.body.acceleration.x >= 300)
+                pet.play('glide', 8, true, true);
+            if ((movement.loop.downDuration(1) && !custom || custom && extraKeys.reverse.downDuration(1)) &&
+                    loop.current===0 && pet.body.acceleration.x >= 200 && pet.animations.currentAnim.name==="fly") {
+                trickTime = music.currentTime+7000;
+                loop.current = 1; loop.next = 0; loop.done = 0;
+                if (!movement.flight.isDown ^ (pet.data.dir < 0)) loop.current = -1;
+                loop.lastAngle = Math.abs(pet.body.rotation);
+            }
+            if (movement.loop.downDuration(1) && loop.current===0 &&
+                      pet.animations.currentAnim.name==="glide" && pet.body.acceleration.x >= 300) {
                 trickTime = music.currentTime+7000;
                 loop.current = 1; loop.next = 0; loop.done = 0;
                 if (!movement.flight.isDown ^ (pet.data.dir < 0)) loop.current = -1;
@@ -541,6 +668,7 @@ GameStates.makeGame = function( game, shared ) {
             }
         },
         updateAngle: function (pet) {
+            var custom = this.playerUsingCustom("angle");
             pet.body.angularVelocity = 0;
             if (movement.angle.downDuration(1)) {
                 if (toggle.keep) toggle.keep = false;
@@ -555,7 +683,9 @@ GameStates.makeGame = function( game, shared ) {
                     endLoop(pet);
                 }
                 if (loop.count >= 358) endLoop(pet);
-            } else if (movement.angle.isDown) {
+            } else if (movement.angle.isDown || custom && extraKeys.angle.isDown) {
+                if (custom && extraKeys.angle.isDown) toggle.angle = false;
+                else if (custom) toggle.angle = true;
                 var adjust = 0;
                 if (pet.data.dir < 0 && pet.rotation < 0) adjust = Math.PI;
                 else if (pet.data.dir < 0 && pet.rotation > 0) adjust = -Math.PI;
@@ -578,11 +708,14 @@ GameStates.makeGame = function( game, shared ) {
             }
         },
         updateSpeed: function (pet) {
+            var custom = this.playerUsingCustom("speed");
             if (movement.speed.downDuration(1)) {
                 if (toggle.keep) toggle.keep = false;
                 else toggle.speed = !toggle.speed;
             }
-            if (movement.speed.isDown && loop.current===0 && !toggle.speed && pet.body.acceleration.x > 0 ||
+            if (custom && extraKeys.speed.isDown) toggle.speed = false;
+            else if (custom) toggle.speed = true;
+            if ((movement.speed.isDown || custom && extraKeys.speed.isDown) && loop.current===0 && !toggle.speed && pet.body.acceleration.x > 0 ||
                     (textCount.alpha>0 || textFinal.text!=="") && pet.body.acceleration.x > 0 && pet.data.performing )
                 pet.body.acceleration.x -= 5;
             else if (movement.speed.isDown && loop.current===0 && toggle.speed && pet.body.acceleration.x < pet.data.maxSpeed)
@@ -600,11 +733,14 @@ GameStates.makeGame = function( game, shared ) {
             }
         },
         updateDepth: function (pet) {
+            var custom = this.playerUsingCustom("depth");
             if (movement.depth.downDuration(1)) {
                 if (toggle.keep) toggle.keep = false;
                 else toggle.depth = !toggle.depth;
             } var scl = Math.abs(pet.scale.y);
-            if ((movement.depth.isDown && !toggle.depth && scl > .67) ||
+            if (custom && extraKeys.depth.isDown) toggle.depth = false;
+            else if (custom) toggle.depth = true;
+            if (((movement.depth.isDown || custom && extraKeys.depth.isDown) && !toggle.depth && scl > .67) ||
                 (movement.depth.isDown && toggle.depth && scl < 1.5)) {
                 var depthSpeed = pet.body.acceleration.x/25000;
                 if (toggle.depth) depthSpeed = -depthSpeed;
