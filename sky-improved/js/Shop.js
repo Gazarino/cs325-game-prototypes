@@ -125,20 +125,21 @@ GameStates.makeShop = function( game, shared, customControls ) {
 
         },
         createPet: function (num) {
-            var type; var real; var price;
+            var type, real, price, mxsp, stm;
             switch (num) {
-                case 1: type = 'royal_gryphon'; real="Royal Gryphon"; price=650; break;
-                case 2: type = 'bronze_gryphon'; real="Bronze Gryphon"; price=700; break;
-                case 3: type = 'ebon_gryphon'; real="Ebon Gryphon"; price=750; break;
-                case 4: type = 'mystic_gryphon'; real="Mystic Gryphon"; price=1200; break;
-                case 5: type = 'pheonix'; real="Pheonix"; price=2000;
+                case 1: type = 'royal_gryphon'; real="Royal Gryphon"; price=700; mxsp=500; stm=500; break;
+                case 2: type = 'bronze_gryphon'; real="Bronze Gryphon"; price=675; mxsp=470; stm=520; break;
+                case 3: type = 'ebon_gryphon'; real="Ebon Gryphon"; price=750; mxsp=520; stm=510; break;
+                case 4: type = 'mystic_gryphon'; real="Mystic Gryphon"; price=1200; mxsp=550; stm=550; break;
+                case 5: type = 'pheonix'; real="Pheonix"; price=2000; mxsp=525; stm=675;
             }
             var y = game.rnd.integerInRange(0, 1);
             if (y===0) y = game.rnd.integerInRange(330, 430); // 50% chance of spawning on the ground
             else y = game.rnd.integerInRange(75, 225);
             var pet = game.add.sprite(game.rnd.integerInRange(75, 430), y, type);
             var t = this.time.time+game.rnd.integerInRange(2500, 5000);
-            pet.data = {species:type, moveTime:t, xDist:0, yDist:0, zDist:0, land:null, liftOff:null, realType:real, cost:price};
+            pet.data = {species:type, moveTime:t, xDist:0, yDist:0, zDist:0, land:null, liftOff:null,
+                            realType:real, cost:price, maxSpeed:mxsp, stamina:stm};
             game.physics.arcade.enable(pet);
             pet.body.allowRotation = true;
             if (type==="pheonix") {
@@ -443,8 +444,10 @@ GameStates.makeShop = function( game, shared, customControls ) {
         option1: function () { mainGame.destroyOptions();
             if (option1Text.text==="Yep!") {
                 if (selectedCreature) {
-                    if (shared.file1) shared.pets1.push({type:selectedCreature.data.species, name:inputBox.value, maxSpeed:500, stamina:500, strength:500});
-                    else shared.pets2.push({type:selectedCreature.data.species, name:inputBox.value, maxSpeed:500, stamina:500, strength:500});
+                    if (shared.file1) shared.pets1.push({type:selectedCreature.data.species, name:inputBox.value,
+                            maxSpeed:selectedCreature.data.maxSpeed, stamina:selectedCreature.data.stamina, strength:500});
+                    else shared.pets2.push({type:selectedCreature.data.species, name:inputBox.value, maxSpeed:selectedCreature.data.maxSpeed,
+                            stamina:selectedCreature.data.stamina, strength:500});
                     selectedCreature = null;
                     mainGame.setRoseAction("joyful", "Perfect. Need anything else?");
                     if (shared.file1 && shared.visits1>1 || !shared.file1 && shared.visits2>1)
@@ -530,10 +533,10 @@ GameStates.makeShop = function( game, shared, customControls ) {
                 selectedCreature.tint = 0xffffff;
                 selectedCreature = null;
             } else if (option2Text.text==="Nah.") {
-                if (shared.file1)
-                    shared.pets1.push({type:selectedCreature.data.species, name:enteredName, maxSpeed:500, stamina:500, strength:500});
-                else
-                    shared.pets2.push({type:selectedCreature.data.species, name:enteredName, maxSpeed:500, stamina:500, strength:500});
+                if (shared.file1) shared.pets1.push({type:selectedCreature.data.species, name:enteredName,
+                        maxSpeed:selectedCreature.data.maxSpeed, stamina:selectedCreature.data.stamina, strength:500});
+                else shared.pets2.push({type:selectedCreature.data.species, name:enteredName, maxSpeed:selectedCreature.data.maxSpeed,
+                        stamina:selectedCreature.data.stamina, strength:500});
                 selectedCreature = null;
                 mainGame.setRoseAction("normal", "Is there anything else I can\nhelp you with?");
                 if (shared.file1 && shared.visits1>1 || !shared.file1 && shared.visits2>1)

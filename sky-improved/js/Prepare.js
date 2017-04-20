@@ -58,16 +58,20 @@ GameStates.makePrepare = function( game, shared ) {
             game.input.onDown.add(this.selectPet, this);
         },
         createPetIcons: function () {//display info for player currently playing in middle if mode!==2
-            var xPlacement = game.width/2-100;
+            var xPlacement = game.width/2-150;
             var xx=1; if (shared.mode===2) xx=2;
             if (shared.mode===2 && !shared.file1) xx=.5;
 
             if (shared.file1 || shared.mode===2) {
-                game.add.text(xPlacement/xx, 100, shared.name1+" ("+shared.gold1+" gold)",
+                if (entryFee===0)
+                    game.add.text(xPlacement/xx, 100, shared.name1,{font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
+                else game.add.text(xPlacement/xx, 100, shared.name1+" ("+shared.gold1+" gold)",
                       {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
                 for (var i=0; i<shared.pets1.length; i++) {
                     var petText = game.add.text(xPlacement/xx, 200+50*i, shared.pets1[i].name,
                           {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
+                    game.add.text(xPlacement/xx, 200+50*i, "\nMax Speed: "+shared.pets1[i].maxSpeed+"   Stamina: "+shared.pets1[i].stamina,
+                          {font:"15px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
                     if (i===0) petText.fill = "#ffff00";
                     player1Pets.push(petText);
                     game.add.sprite(petText.x-50, petText.y, shared.pets1[i].type+"_icon");
@@ -77,11 +81,15 @@ GameStates.makePrepare = function( game, shared ) {
                 submit1.data = true;
             }
             if (!shared.file1 || shared.mode===2) {
-                game.add.text(xPlacement*xx, 100, shared.name2+" ("+shared.gold2+" gold)",
+                if (entryFee===0)
+                    game.add.text(xPlacement*xx, 100, shared.name2,{font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
+                else game.add.text(xPlacement*xx, 100, shared.name2+" ("+shared.gold2+" gold)",
                       {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
                 for (var i=0; i<shared.pets2.length; i++) {
                     var petText = game.add.text(xPlacement*xx, 200+50*i, shared.pets2[i].name,
                           {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
+                    game.add.text(xPlacement*xx, 200+50*i, "\nMax Speed: "+shared.pets2[i].maxSpeed+"   Stamina: "+shared.pets2[i].stamina,
+                          {font:"15px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
                     if (i===0) petText.fill = "#ffff00";
                     player2Pets.push(petText);
                     game.add.sprite(petText.x-50, petText.y, shared.pets2[i].type+"_icon");

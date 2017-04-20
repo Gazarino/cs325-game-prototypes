@@ -56,6 +56,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
     var moneyText;
     var device;
     var performer1;
+    var initialStamina, staminaTime, staminaBar;
 
     function quitGame() {
         if (trainingMusic) trainingMusic.stop();
@@ -148,6 +149,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
             totalGrade2 = {perform:0, judge:0};
             pointBin = 0;
             noteCount = 0;
+            staminaTime = 150;
             sectionGrades1 = [];
             sectionGrades2 = [];
             recentGrades = [];
@@ -168,8 +170,8 @@ GameStates.makeGame = function( game, shared, customControls ) {
                 inSky.add(cloud);
             }
             angle = 0;
-            if (shared.file1) player = this.createPet(shared.pets1[0].type);
-            else player = this.createPet(shared.pets2[0].type);
+            if (shared.file1) player = this.createPet(shared.pets1[0].type,shared.pets1[0].maxSpeed,shared.pets1[0].stamina);
+            else player = this.createPet(shared.pets2[0].type,shared.pets2[0].maxSpeed,shared.pets2[0].stamina);
             player.data.performing = true;
             player.play('fly', 16, true, true);
             inSky.add(player);
@@ -187,6 +189,8 @@ GameStates.makeGame = function( game, shared, customControls ) {
             notes = game.add.group();
 
             this.makeDevice();
+            staminaBar = game.add.sprite(game.width/2, game.height-50, 'staminaBar');
+            staminaBar.anchor.set(.5);
 
             music = game.add.audio('song1');
             trainingMusic = game.add.audio('practiceMusic');
@@ -289,9 +293,10 @@ GameStates.makeGame = function( game, shared, customControls ) {
             }
 
         },
-        createPet: function (type) {
+        createPet: function (type,mxsp,stm) {
             var pet = game.add.sprite(300, 300, type);
-            pet.data = {maxSpeed:500, wrath:null, wrath_sound:null, performing:false, dir:1};
+            pet.data = {maxSpeed:mxsp, stamina:stm, wrath:null, wrath_sound:null, performing:false, dir:1};
+            initialStamina = stm;
             game.physics.arcade.enable(pet);
             pet.body.allowRotation = true;
             if (type==="pheonix") {
@@ -327,8 +332,8 @@ GameStates.makeGame = function( game, shared, customControls ) {
                     player.destroy();
                     performer1 = false;
                     this.makeDevice();
-                    if (!shared.file1) player = this.createPet(shared.pets1[0].type);
-                    else player = this.createPet(shared.pets2[0].type);
+                    if (!shared.file1) player = this.createPet(shared.pets1[0].type,shared.pets1[0].maxSpeed,shared.pets1[0].stamina);
+                    else player = this.createPet(shared.pets2[0].type,shared.pets2[0].maxSpeed,shared.pets2[0].stamina);
                     player.x = -player.width;
                     player.body.acceleration.x=200;
                     player.play('fly', 16, true, true);
@@ -348,6 +353,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
                     player.body.acceleration.x=0;
                     player.data.performing = true;
                 } else {
+                    staminaBar.kill();
                     winMusic.play();
                     this.destroyDevice();
                     var p1 = shared.name1; var p2 = shared.name2;
@@ -390,6 +396,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
         },
         killObj: function (obj) {obj.kill();},
         endSinglePlayer: function () {
+            staminaBar.kill();
             textFinal.text = "You got "+totalGrade1.perform+" points!\n";
             var n1 = game.rnd.integerInRange(800, 1000);
             var n2 = game.rnd.integerInRange(1000, 1200);
@@ -454,6 +461,9 @@ GameStates.makeGame = function( game, shared, customControls ) {
             this.updateSpeed(player);
             this.updateDepth(player);
 
+            if (player && player.data)
+                this.updateStamina(player);
+
             var xx = 0; var yy = 0;
             while (player.centerX > 550 && player.data.performing) { player.x--;  xx--; }
             while (player.centerX < 250 && player.data.performing) { player.x++;  xx++; }
@@ -508,8 +518,11 @@ GameStates.makeGame = function( game, shared, customControls ) {
                 }
             } else {
                 if (loop.current!==0) {
-                    note.data.grade+=2;
-                    if (device && device.data && device.data.flight) device.data.flight.fill="#0000cc";
+                    note.data.grade++;
+                    if (player.animations.currentAnim.name==="glide") {
+                        note.data.grade++;
+                        if (device && device.data && device.data.flight) device.data.flight.fill="#0000cc";
+                    } else if (device && device.data && device.data.flight) device.data.flight.fill="#00cc00";
                 } else if ((note.data.len > 36 && player.animations.currentAnim.name==="glide") ||
                     (note.data.len <=36 && player.animations.currentAnim.name==="fly")) {
                     note.data.grade++;
@@ -704,7 +717,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
                 if (!movement.flight.isDown ^ (pet.data.dir < 0)) loop.current = -1;
                 loop.lastAngle = Math.abs(pet.body.rotation);
             }
-            if (movement.loop.downDuration(1) && loop.current===0 &&
+            if (movement.loop.downDuration(1) && loop.current===0 && pet.data.stamina>=40 &&
                       pet.animations.currentAnim.name==="glide" && pet.body.acceleration.x >= 300) {
                 trickTime = music.currentTime+7000;
                 loop.current = 1; loop.next = 0; loop.done = 0;
@@ -730,7 +743,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
                     if (loop.done===0) {pet.scale.y *= -1; pet.data.dir *= -1;}
                     endLoop(pet);
                 }
-                if (loop.count >= 358) endLoop(pet);
+                if (loop.count >= 358) {pet.data.stamina-=40; endLoop(pet);}
             } else if (movement.angle.isDown || custom && extraKeys.angle.isDown) {
                 if (custom && extraKeys.angle.isDown) toggle.angle = false;
                 else if (custom) toggle.angle = true;
@@ -805,6 +818,20 @@ GameStates.makeGame = function( game, shared, customControls ) {
                 else if (scl < 1.5 && Math.abs(pet.scale.y) >= 1.5) inSky.moveUp(pet);
                 else if (scl >= 1.5 && Math.abs(pet.scale.y) < 1.5) inSky.moveDown(pet);
             }
+        },
+        updateStamina: function (pet) {
+            if (pet.body.acceleration.x < 300 && this.time.time > staminaTime) {
+                pet.data.stamina++;
+                staminaTime = this.time.time+250;
+            } else if (pet.body.acceleration.x > 400 && this.time.time > staminaTime) {
+                pet.data.stamina--;
+                staminaTime = this.time.time+250;
+            }
+            if (pet.data.stamina > initialStamina) pet.data.stamina = initialStamina;
+            else if (pet.data.stamina < 0) pet.data.stamina=0;
+            while (pet.body.acceleration.x > pet.data.stamina+initialStamina/2)
+                pet.body.acceleration.x-=5;
+            staminaBar.width = pet.data.stamina/2;
         },
         transformClouds: function (xx,yy) {
             for (var i = 0; i < clouds.length; i++) {

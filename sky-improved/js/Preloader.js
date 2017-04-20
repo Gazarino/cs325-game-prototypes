@@ -39,6 +39,7 @@ GameStates.makePreloader = function( game ) {
             game.load.image('note', 'assets/note.jpg');
             game.load.image('notebox', 'assets/notebox.jpg');
 						game.load.image('device', 'assets/device.jpg');
+						game.load.image('staminaBar', 'assets/staminaBar.jpg');
 
 						//game.load.spritesheet('title_griffin', 'assets/unused_royal_griffin.png', 220, 175, 21);
 
