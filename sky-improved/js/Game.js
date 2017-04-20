@@ -191,6 +191,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
             this.makeDevice();
             staminaBar = game.add.sprite(game.width/2, game.height-50, 'staminaBar');
             staminaBar.anchor.set(.5);
+            staminaBar.alpha = .75;
 
             music = game.add.audio('song1');
             trainingMusic = game.add.audio('practiceMusic');
