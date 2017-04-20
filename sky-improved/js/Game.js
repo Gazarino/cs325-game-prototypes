@@ -520,7 +520,7 @@ GameStates.makeGame = function( game, shared, customControls ) {
                 if (loop.current!==0) {
                     note.data.grade++;
                     if (player.animations.currentAnim.name==="glide") {
-                        note.data.grade++;
+                        note.data.grade+=2;
                         if (device && device.data && device.data.flight) device.data.flight.fill="#0000cc";
                     } else if (device && device.data && device.data.flight) device.data.flight.fill="#00cc00";
                 } else if ((note.data.len > 36 && player.animations.currentAnim.name==="glide") ||
