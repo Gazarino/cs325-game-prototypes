@@ -49,8 +49,7 @@ GameStates.makePrepare = function( game, shared ) {
             if (shared.mode===0) entryFee = 0;
             else if (shared.mode===1) entryFee = 100;
             else if (shared.mode===2) entryFee = 200;
-            if (shared.mode!==0)
-                game.add.text(game.width/2-100, 15, "Entry Fee: "+entryFee, {font:"22px Yu Gothic UI Semibold", fill:"#ffffff", align:"left" });
+            game.add.text(game.width/2-100, 15, "Entry Fee: "+entryFee, {font:"22px Yu Gothic UI Semibold", fill:"#ffffff", align:"left" });
             error = game.add.text(game.width/2, game.height-100, "You do not have enough gold.",
                         {font:"20px Yu Gothic UI Semibold", fill:"#ffffff", align:"center" });
             error.anchor.set(.5); error.alpha = 0;
@@ -63,9 +62,7 @@ GameStates.makePrepare = function( game, shared ) {
             if (shared.mode===2 && !shared.file1) xx=.5;
 
             if (shared.file1 || shared.mode===2) {
-                if (entryFee===0)
-                    game.add.text(xPlacement/xx, 100, shared.name1,{font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
-                else game.add.text(xPlacement/xx, 100, shared.name1+" ("+shared.gold1+" gold)",
+                game.add.text(xPlacement/xx, 100, shared.name1+" ("+shared.gold1+" gold)",
                       {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
                 for (var i=0; i<shared.pets1.length; i++) {
                     var petText = game.add.text(xPlacement/xx, 200+50*i, shared.pets1[i].name,
@@ -81,9 +78,7 @@ GameStates.makePrepare = function( game, shared ) {
                 submit1.data = true;
             }
             if (!shared.file1 || shared.mode===2) {
-                if (entryFee===0)
-                    game.add.text(xPlacement*xx, 100, shared.name2,{font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
-                else game.add.text(xPlacement*xx, 100, shared.name2+" ("+shared.gold2+" gold)",
+                game.add.text(xPlacement*xx, 100, shared.name2+" ("+shared.gold2+" gold)",
                       {font:"20px Yu Gothic UI Semibold", fill:"#000000", align:"left" });
                 for (var i=0; i<shared.pets2.length; i++) {
                     var petText = game.add.text(xPlacement*xx, 200+50*i, shared.pets2[i].name,
