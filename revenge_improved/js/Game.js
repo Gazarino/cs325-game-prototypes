@@ -502,6 +502,7 @@ GameStates.makeGame = function( game, shared ) {
         },
 
         changeLocation: function(item) {
+            item.bringToTop();
             switch (item.data.prev) {
                 case "act1": amountText.act1.kill();
                     amountText.act1 = game.add.text(0,0,"",{font:"15px Arial", fill:"#000000", align:"center"});

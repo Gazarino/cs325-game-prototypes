@@ -145,6 +145,7 @@ window.onload = function() {
         textFound.alpha = 0;
         textResult = game.add.text(240, 150, "", {font:"30px Arial", fill:"#ffffff", align:"center" });
         textFinal = game.add.text(240, 185, "", {font:"22px Arial", fill:"#ffffff", align:"center" });
+        this.stage.disableVisibilityChange = true;
     }
 
     function clickEvent() {
