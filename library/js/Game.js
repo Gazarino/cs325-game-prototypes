@@ -31,6 +31,7 @@ GameStates.makeGame = function( game, shared ) {
             circle = game.add.sprite(0,0,'circle');   circle.alpha = 0;
             circle.animations.add('spin', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
             deathMark = game.add.sprite(400,433, 'circle'); deathMark.tint = 0xff0000;
+            game.physics.arcade.enable(deathMark);
             wallLayer = map.createLayer('Walls');
             wallLayer.resizeWorld();
             map.setCollision([5,6,7,15,16,17,25,26,27,35,36,45,46], true, wallLayer);
@@ -38,7 +39,7 @@ GameStates.makeGame = function( game, shared ) {
             sprites = game.add.group();
             spellcaster = game.add.sprite(400, 455, 'girl1');
             spellcaster.scale.set(.75);
-            spellcaster.data = {speed:6, spellInUse:false, spellType:""};
+            spellcaster.data = {speed:6, spellInUse:false, spellType:"", timeEvent:null};
             game.physics.arcade.enable(spellcaster);
             spellcaster.anchor.set(.5);
             spellcaster.animations.add('up', [0,1,2,1]);
@@ -87,7 +88,7 @@ GameStates.makeGame = function( game, shared ) {
             }
 
             game.camera.follow(spellcaster);
-            decorLayer = map.createLayer('Bookshelves');
+            decorLayer = map.createLayer('Bookshelves'); //decorLayer.alpha=0;
 
             rain = game.add.audio('rain');
             rain.loopFull(.5);
@@ -102,12 +103,15 @@ GameStates.makeGame = function( game, shared ) {
             lightning.scale.set(1.25);
 						lightning.alpha = 0;
 						lightningTime = this.time.time+game.rnd.integerInRange(12000, 25000);
-            textFinal = game.add.text(240, 185, "You Win!", {font:"22px Arial", fill:"#ffffff", align:"center" });
+            textFinal = game.add.text(240, 185, "", {font:"22px Arial", fill:"#ffffff", align:"center" });
+            textFinal.anchor.set(.5);
             textFinal.alpha = 0;
+            //game.input.onDown.add(this.idAt, this, game.input.activePointer.worldX, game.input.activePointer.worldY);
         },
 
         update: function () {
-            if (gameOver) {}
+            game.physics.arcade.overlap(spellcaster, enemies, this.touchingEnemy, null, this);
+            if (gameOver) return;
             //if (spellKeys.aim.downDuration(1))
             //sprites.sort('y', Phaser.Group.SORT_ASCENDING);
             this.moveSpellcaster();
@@ -160,8 +164,10 @@ GameStates.makeGame = function( game, shared ) {
                 circle.tint = 0xffffff;  circle.animations.stop();  this.startSpell();
                 game.time.events.add(250, this.fadeCircle, this);
             }
-            if (spellKeys.x.downDuration(1)) {this.fadeCircle(); this.endSpell();}
-
+            if (spellKeys.x.downDuration(1)) {
+                if (spellcaster.data.timeEvent) game.time.events.remove(spellcaster.data.timeEvent);
+                this.fadeCircle(); this.endSpell();
+            }
         },
         fadeCircle: function () {game.add.tween(circle).to({alpha:0}, 500, "Linear", true);},
         startSpell: function () {
@@ -169,44 +175,70 @@ GameStates.makeGame = function( game, shared ) {
                 var sign=1;   if (spellcaster.scale.x<0) sign=-1;
                 game.add.tween(spellcaster.scale).to({x:.5*sign}, 1000, "Linear", true);
                 game.add.tween(spellcaster.scale).to({y:.5}, 1000, "Linear", true);
-                game.time.events.add(10000, this.endSpell, this);
+                spellcaster.data.timeEvent = game.time.events.add(10000, this.endSpell, this);
             } else if (circle.data==="adad" && spellcaster.data.spellType==="s") {
                 game.add.tween(decorLayer).to({alpha:.5}, 1000, "Linear", true);
-                game.time.events.add(10000, this.endSpell, this);
+                spellcaster.data.timeEvent = game.time.events.add(10000, this.endSpell, this);
             } else if (circle.data==="sasa" && spellcaster.data.spellType==="d") {
                 for (var i = 0; i < enemies.length; i++)
                     enemies[i].data.lineOfSight.forEachExists(fadeDot, this);
                 function fadeDot (dot) {game.add.tween(dot).to({alpha:1}, 1000, "Linear", true);}
-                game.time.events.add(10000, this.endSpell, this);
+                spellcaster.data.timeEvent = game.time.events.add(10000, this.endSpell, this);
             } else if (circle.data==="ssaa" && spellcaster.data.spellType==="w") {
                 game.time.events.add(150, warpForward, this, spellcaster.animations.currentAnim.name, (spellcaster.scale.x>0));
                 var touching = false;
                 function warpForward (a, facingRight) {
+                    var dist = 49+spellcaster.height;  if (a.includes("Side")) dist-=16;
                     if (a==="up") {
-                        spellcaster.centerY-=48;/*
-                        game.physics.arcade.overlap(spellcaster, wallLayer, touchingWall, null, this);
-                        while (touching) {
-                            spellcaster.centerY++; touching=false;
-                            game.physics.arcade.overlap(spellcaster, wallLayer, touchingWall, null, this);
-                        }//*/
+                        spellcaster.centerY-=dist;
+                        while (this.collidingWithWall(spellcaster))
+                            spellcaster.centerY++;
+                    } else if (a==="upSide" && facingRight) {
+                        spellcaster.centerY-=dist; spellcaster.centerX+=dist;
+                        while (this.collidingWithWall(spellcaster))
+                            {spellcaster.centerY++; spellcaster.centerX--;}
+                    } else if (a==="side" && facingRight) {
+                        spellcaster.centerX+=dist;
+                        while (this.collidingWithWall(spellcaster))
+                            spellcaster.centerX--;
+                    } else if (a==="downSide" && facingRight) {
+                        spellcaster.centerY+=dist; spellcaster.centerX+=dist;
+                        while (this.collidingWithWall(spellcaster))
+                            {spellcaster.centerY--; spellcaster.centerX--;}
+                    } else if (a==="down") {
+                        spellcaster.centerY+=dist;
+                        while (this.collidingWithWall(spellcaster))
+                            spellcaster.centerY--;
+                    } else if (a==="downSide") {
+                        spellcaster.centerY+=dist; spellcaster.centerX-=dist;
+                        while (this.collidingWithWall(spellcaster))
+                            {spellcaster.centerY--; spellcaster.centerX++;}
+                    } else if (a==="side") {
+                        spellcaster.centerX-=dist;
+                        while (this.collidingWithWall(spellcaster))
+                            spellcaster.centerX++;
+                    } else if (a==="upSide") {
+                        spellcaster.centerY-=dist; spellcaster.centerX-=dist;
+                        while (this.collidingWithWall(spellcaster))
+                            {spellcaster.centerY++; spellcaster.centerX++;}
                     }
-                    else if (a==="upSide" && facingRight) {spellcaster.centerY-=32; spellcaster.centerX+=32;}
-                    else if (a==="side" && facingRight) {spellcaster.centerX+=48;}
-                    else if (a==="downSide" && facingRight) {spellcaster.centerY+=32; spellcaster.centerX+=32;}
-                    else if (a==="down") {spellcaster.centerY+=48;}
-                    else if (a==="downSide") {spellcaster.centerY+=32; spellcaster.centerX-=32;}
-                    else if (a==="side") {spellcaster.centerX-=48;}
-                    else if (a==="upSide") {spellcaster.centerY-=32; spellcaster.centerX-=32;}
-                }
-                function touchingWall (sc, wall) { if (wall.index>=0) touching = true; }
-                game.time.events.add(150, this.endSpell, this);
+                } game.time.events.add(150, this.endSpell, this);
             }
         },
-        endSpell: function () {
+        collidingWithWall: function (sc) { var w = Math.abs(sc.width/2), h = sc.height/2, scX=sc.centerX, scY=sc.centerY;
+            return (this.idAt(scX-w,scY-h)>=0 || this.idAt(scX,scY-h)>=0 || this.idAt(scX+w,scY-h)>=0 ||
+                    this.idAt(scX-w,scY+h)>=0 || this.idAt(scX,scY+h)>=0 || this.idAt(scX+w,scY+h)>=0 ||
+                    this.idAt(scX-w,scY)>=0 || this.idAt(scX+w,scY)>=0);
+        },
+        endSpell: function () { spellcaster.data.timeEvent = null;
             if (circle.data==="awdd" && spellcaster.data.spellType==="s") {
-                var sign=1;   if (spellcaster.scale.x<0) sign=-1;
-                game.add.tween(spellcaster.scale).to({x:.75*sign}, 1000, "Linear", true);
-                game.add.tween(spellcaster.scale).to({y:.75}, 1000, "Linear", true);
+                if (spellcaster.centerY<160) {
+                    spellcaster.data.timeEvent = game.time.events.add(1000, this.endSpell, this); return;
+                } else {
+                    var sign=1;   if (spellcaster.scale.x<0) sign=-1;
+                    game.add.tween(spellcaster.scale).to({x:.75*sign}, 1000, "Linear", true);
+                    game.add.tween(spellcaster.scale).to({y:.75}, 1000, "Linear", true);
+                }
             } else if (circle.data==="adad" && spellcaster.data.spellType==="s") {
                 game.add.tween(decorLayer).to({alpha:1}, 1000, "Linear", true);
             } else if (circle.data==="sasa" && spellcaster.data.spellType==="d") {
@@ -219,7 +251,6 @@ GameStates.makeGame = function( game, shared ) {
         moveSpellcaster: function () {
             textFinal.x = spellcaster.x; textFinal.y = spellcaster.y;
             game.physics.arcade.collide(spellcaster, wallLayer);
-            game.physics.arcade.overlap(spellcaster, enemies, this.touchingEnemy, null, this);
             var a = spellcaster.animations.currentAnim;
             if (cursors.up.isDown) {
                 if ((cursors.left.isDown || cursors.right.isDown) && (a.name!=="upSide" || !a.isPlaying))
@@ -253,33 +284,43 @@ GameStates.makeGame = function( game, shared ) {
         touchingEnemy: function (sc, enemy) {
             if (sc.centerY+sc.height/2 < enemy.centerY+enemy.height/2 && sc.z > enemy.z) sprites.swap(sc, enemy);
             else if (sc.centerY+sc.height/2 > enemy.centerY+enemy.height/2 && sc.z < enemy.z) sprites.swap(sc, enemy);
-            if (Math.abs(sc.centerY-enemy.centerY)<15 && Math.abs(sc.centerX-enemy.centerX)<15) {
+            if (Math.abs(sc.centerY-enemy.centerY)<15 && Math.abs(sc.centerX-enemy.centerX)<15 && !enemy.data.dying) {
                 for (var i = 0; i < enemies.length; i++)
                     enemies[i].body.velocity.set(0);
-                gameOver = true; lightning.alpha = 0; lightning.tint = 0x000000;
-                game.add.tween(lightning).to({alpha:1}, 5000, "Linear", true);
-                game.time.events.add(5000, quitGame, this);
+                spellcaster.body.velocity.set(0);
+                gameOver = true; textFinal.text = "You were caught...";
+                textFinal.alpha = 1;
+                game.camera.fade('#000000', 4000);
+                game.camera.onFadeComplete.add(quitGame,this);
             }
         },
+        killEnemyParts: function (enemy) {
+            var b = enemy.data.collisionBoxes;
+            b.upLeft.destroy();   b.up.destroy();   b.upRight.destroy();
+            b.downLeft.destroy(); b.down.destroy(); b.downRight.destroy();
+            b.leftUp.destroy();   b.left.destroy(); b.leftDown.destroy();
+            b.rightUp.destroy();  b.right.destroy();b.rightDown.destroy();
+            enemy.data.lineOfSight.destroy();  game.time.events.add(100, this.killEnemy, this, enemy);
+        },
         killEnemy: function (enemy) {
-            enemy.data.collisionBoxes.destroy();
             enemy.destroy();
             for (var i = 0; i < enemies.length; i++)
                 if (enemy === enemies[i]) enemies.splice(i,1);
-            if (enemies.length===0) textFinal.alpha = 1;
+            if (enemies.length===0) {
+                textFinal.text = "You sealed all\nthe enemies away!\nYou win!";
+                textFinal.alpha = 1;
+                game.time.events.add(5000, quitGame, this);
+            }
         },
         moveEnemies: function () {
             for (var i = 0; i < enemies.length; i++) {
                 var enemy = enemies[i]; var b = enemy.data.collisionBoxes; var m=13;
-                if (enemy.data.dying) return;
                 game.physics.arcade.overlap(enemy, deathMark, deathCheck, null, this);
                 function deathCheck (e, mark) {
                     if (Math.abs(e.centerY-mark.centerY)<15 && Math.abs(e.centerX-mark.centerX)<15) {
-                        e.body.velocity.set(0);
-                        game.add.tween(e).to({alpha:0}, 3000, "Linear", true);
-                        game.time.events.add(3000, this.killEnemy, this, e);
+                        e.data.dying = true;   game.add.tween(e).to({alpha:0}, 500, "Linear", true);
                     }
-                }
+                } if (enemy.data.dying) { enemy.body.velocity.set(0); if (enemy.alpha<0.1) {this.killEnemyParts(enemy);}  return; }
                 var a = enemy.animations.currentAnim;
                 var distanceX = spellcaster.centerX - enemy.centerX;
                 var distanceY = spellcaster.centerY - enemy.centerY;
@@ -322,19 +363,19 @@ GameStates.makeGame = function( game, shared ) {
                 // Potentially change direction if a new path opens to enemy's side.
                 function pathOpened (b1,b2,b3) { if (b1>0 && b1<=20 && b1<b2 && b2<b3) {b1+=20; return true;} return false;}
                 if (a.name==="right" && (pathOpened(b.upLeft.data,b.up.data,b.upRight.data) ||
-                          pathOpened(b.downLeft.data,b.down.data,b.downRight.data))) changeDirection();
+                          pathOpened(b.downLeft.data,b.down.data,b.downRight.data))) {changeDirection();}
                 else if (a.name==="left" && (pathOpened(b.upRight.data,b.up.data,b.upLeft.data) ||
-                          pathOpened(b.downRight.data,b.down.data,b.downLeft.data))) changeDirection();
+                          pathOpened(b.downRight.data,b.down.data,b.downLeft.data))) {changeDirection();}
                 else if (a.name==="up" && (pathOpened(b.rightDown.data,b.right.data,b.rightUp.data) ||
-                          pathOpened(b.leftDown.data,b.left.data,b.leftUp.data))) changeDirection();
+                          pathOpened(b.leftDown.data,b.left.data,b.leftUp.data))) {changeDirection();}
                 else if (a.name==="down" && (pathOpened(b.rightUp.data,b.right.data,b.rightDown.data) ||
-                          pathOpened(b.leftUp.data,b.left.data,b.leftDown.data))) changeDirection();
+                          pathOpened(b.leftUp.data,b.left.data,b.leftDown.data))) {changeDirection();}
                 // Change direction if blocked in front.
                 function pathCheck (b1,b2,b) {return (b1===0 || b2===0 || b===0);}
-                if (a.name==="right" && pathCheck(b.rightUp.data,b.rightDown.data,b.right.data)) changeDirection();
-                else if (a.name==="left" && pathCheck(b.leftUp.data,b.leftDown.data,b.left.data)) changeDirection();
-                else if (a.name==="up" && pathCheck(b.upRight.data,b.upLeft.data,b.up.data)) changeDirection();
-                else if (a.name==="down" && pathCheck(b.downRight.data,b.downLeft.data,b.down.data)) changeDirection();
+                if (a.name==="right" && pathCheck(b.rightUp.data,b.rightDown.data,b.right.data)) {changeDirection();}
+                else if (a.name==="left" && pathCheck(b.leftUp.data,b.leftDown.data,b.left.data)) {changeDirection();}
+                else if (a.name==="up" && pathCheck(b.upRight.data,b.upLeft.data,b.up.data)) {changeDirection();}
+                else if (a.name==="down" && pathCheck(b.downRight.data,b.downLeft.data,b.down.data)) {changeDirection();}
 
                 function changeDirection () {
                     enemy.body.velocity.set(0);   var r=1;
@@ -380,13 +421,14 @@ GameStates.makeGame = function( game, shared ) {
                     else if (spellKeys.a.isDown) enemy.body.velocity.x = -enemy.data.speed*m;
                     else if (spellKeys.w.isDown) enemy.body.velocity.y = -enemy.data.speed*m;
                     else if (spellKeys.s.isDown) enemy.body.velocity.y = enemy.data.speed*m;
-                } else if (enemy.body.velocity.x===0 && enemy.body.velocity.y===0) {
+                } else if (enemy.body.velocity.x===0 && enemy.body.velocity.y===0 && enemy.data.counter>10) {
                     if (a.name==="right") enemy.body.velocity.x = enemy.data.speed*m;
                     if (a.name==="left") enemy.body.velocity.x = -enemy.data.speed*m;
                     if (a.name==="up") enemy.body.velocity.y = -enemy.data.speed*m;
                     if (a.name==="down") enemy.body.velocity.y = enemy.data.speed*m;
                     changeDirection();
-                }
+                } else if (enemy.body.velocity.x===0 && enemy.body.velocity.y===0) enemy.data.counter++;
+                else enemy.data.counter = 0;
 
                 if (enemy.body.velocity.x > 0 && (a.name!=="right" || !a.isPlaying))
                     enemy.play('right', enemy.data.speed);
@@ -427,6 +469,12 @@ GameStates.makeGame = function( game, shared ) {
                     else {box.tint=0xffffff;  box.data++;}
                 }
             }
+        },
+        idAt: function (x,y) {
+            //x = game.input.activePointer.worldX; y = game.input.activePointer.worldY;
+            var tile = map.getTile(wallLayer.getTileX(x), wallLayer.getTileY(y), wallLayer);
+            if (tile) return tile.index;
+            else return -1;
         },
         lightningStart: function () {
             if (gameOver) return;
