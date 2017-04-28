@@ -19,6 +19,9 @@ GameStates.makePreloader = function( game ) {
 						game.load.image('raindrop', 'assets/raindrop.jpg');
 						game.load.image('lightning', 'assets/lightning.jpg');
 						game.load.image('dot', 'assets/dot.jpg');
+						game.load.image('mana', 'assets/mana.jpg');
+						game.load.image('spellbook', 'assets/spellbook.png');
+						game.load.image('seeMark', 'assets/seeMark.png');
 						game.load.image('custom_FF5_spritesheet', 'assets/custom_FF5_spritesheet.png');
 
             game.load.atlas('playButton', 'assets/play_button.png', 'assets/play_button.json');

@@ -5,7 +5,7 @@ GameStates.makeGame = function( game, shared ) {
     var music, cursors, spellKeys;
     var lightning = null, lightningTime = null, thunder = null, rain = null;
     var map, floorLayer, wallLayer, decorLayer;
-    var spellcaster, circle, enemy1, enemies, sprites;
+    var spellcaster, circle, spellbook, textBook, enemies, sprites;
     var gameOver, deathMark, textFinal;
 
     function quitGame() {
@@ -18,7 +18,7 @@ GameStates.makeGame = function( game, shared ) {
         create: function () {
             gameOver = false;
             cursors = game.input.keyboard.createCursorKeys();
-            spellKeys = game.input.keyboard.addKeys( {'a': Phaser.KeyCode.A, 'w': Phaser.KeyCode.W,
+            spellKeys = game.input.keyboard.addKeys( {'a': Phaser.KeyCode.A, 'w': Phaser.KeyCode.W, 'h': Phaser.KeyCode.H,
                                                       's': Phaser.KeyCode.S, 'd': Phaser.KeyCode.D, 'x': Phaser.KeyCode.X } );
             game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.UP, Phaser.Keyboard.DOWN ]);
 
@@ -30,7 +30,7 @@ GameStates.makeGame = function( game, shared ) {
             floorLayer = map.createLayer('Floor');
             circle = game.add.sprite(0,0,'circle');   circle.alpha = 0;
             circle.animations.add('spin', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
-            deathMark = game.add.sprite(400,433, 'circle'); deathMark.tint = 0xff0000;
+            deathMark = game.add.sprite(380,420, 'circle'); deathMark.tint = 0xff0000;
             game.physics.arcade.enable(deathMark);
             wallLayer = map.createLayer('Walls');
             wallLayer.resizeWorld();
@@ -50,11 +50,12 @@ GameStates.makeGame = function( game, shared ) {
             sprites.add(spellcaster);
 
             enemies = [];
-            enemy1 = createEnemy(1, 250, 180);
+            enemies.push(createEnemy(1, 170, 170));
+            enemies.push(createEnemy(1, 670, 170));
             function createEnemy (num, x, y) {
                 var enemy = game.add.sprite(x, y, 'man'+num);
                 enemy.data = {speed:6, collisionBoxes:null, lineOfSight:game.add.physicsGroup(), seeSC:false, moveList:[],
-                              controlled:false, counter:0, dying:false};
+                              controlled:false, counter:0, dying:false, seeMark:game.add.sprite(x,y,'seeMark')};
                 enemy.data.collisionBoxes = {upLeft:game.add.sprite(x, y, 'dot'), upRight:game.add.sprite(x, y, 'dot'),
                                             downLeft:game.add.sprite(x, y, 'dot'), downRight:game.add.sprite(x, y, 'dot'),
                                             rightUp:game.add.sprite(x, y, 'dot'), rightDown:game.add.sprite(x, y, 'dot'),
@@ -69,6 +70,7 @@ GameStates.makeGame = function( game, shared ) {
                 function prepareBox (box) {
                     box.data=0; box.alpha=0; game.physics.arcade.enable(box);
                 }
+                enemy.data.seeMark.alpha = 0;
                 enemy.data.lineOfSight.enableBody = true;
                 enemy.data.lineOfSight.physicsBodyType = Phaser.Physics.ARCADE;
                 enemy.data.lineOfSight.createMultiple(20, 'dot');
@@ -82,13 +84,15 @@ GameStates.makeGame = function( game, shared ) {
                 enemy.animations.add('left', [3,4,5,4]);
                 enemy.animations.add('right', [6,7,8,7]);
                 enemy.animations.add('up', [9,10,11,10]);
-                enemies.push(enemy);
                 sprites.add(enemy);
                 return enemy;
             }
 
             game.camera.follow(spellcaster);
             decorLayer = map.createLayer('Bookshelves'); //decorLayer.alpha=0;
+
+            textBook = game.add.text(5, 5, "Press H to close spellbook.", {font:"7px Sitka Small", fill:"#ffffff", align:"center" });
+            spellbook = game.add.sprite(-50, 10, 'spellbook');
 
             rain = game.add.audio('rain');
             rain.loopFull(.5);
@@ -117,14 +121,19 @@ GameStates.makeGame = function( game, shared ) {
             this.moveSpellcaster();
             this.moveEnemies();
             this.analyzeSpellInput();
+            textFinal.x = game.camera.x+game.width/2; textFinal.y = game.camera.y+game.height/2;
+            textBook.x = game.camera.x+5;   textBook.y = game.camera.y+4;
+            spellbook.x = game.camera.x-100;spellbook.y = game.camera.y;
+            lightning.x = game.camera.x-5;  lightning.y = game.camera.y-5;
             //sprites.forEachExists(this.moveEnemy, this);
-
-            lightning.x = game.camera.x-5;
-            lightning.y = game.camera.y-5;
             if (this.time.time > lightningTime)
 								this.lightningStart();
         },
         analyzeSpellInput: function () {
+            if (spellKeys.h.downDuration(1)) {
+                if (spellbook.alpha==0) {textBook.text="Press H to close spellbook.";  spellbook.alpha=1;}
+                else {textBook.text="Press H to open spellbook.";  spellbook.alpha=0;}
+            }
             if (circle.alpha===0 && !spellcaster.data.spellInUse) {
                 if (spellKeys.w.isDown) circle.tint = 0xcc33ff;
                 else if (spellKeys.a.isDown) circle.tint = 0xffa31a;
@@ -225,7 +234,7 @@ GameStates.makeGame = function( game, shared ) {
                 } game.time.events.add(150, this.endSpell, this);
             }
         },
-        collidingWithWall: function (sc) { var w = Math.abs(sc.width/2), h = sc.height/2, scX=sc.centerX, scY=sc.centerY;
+        collidingWithWall: function (sc) { var w = Math.abs(sc.width/2)-1, h = sc.height/2-1, scX=sc.centerX, scY=sc.centerY;
             return (this.idAt(scX-w,scY-h)>=0 || this.idAt(scX,scY-h)>=0 || this.idAt(scX+w,scY-h)>=0 ||
                     this.idAt(scX-w,scY+h)>=0 || this.idAt(scX,scY+h)>=0 || this.idAt(scX+w,scY+h)>=0 ||
                     this.idAt(scX-w,scY)>=0 || this.idAt(scX+w,scY)>=0);
@@ -249,7 +258,6 @@ GameStates.makeGame = function( game, shared ) {
             spellcaster.data.spellInUse=false;  circle.data="";  spellcaster.data.spellType="";
         },
         moveSpellcaster: function () {
-            textFinal.x = spellcaster.x; textFinal.y = spellcaster.y;
             game.physics.arcade.collide(spellcaster, wallLayer);
             var a = spellcaster.animations.currentAnim;
             if (cursors.up.isDown) {
@@ -300,7 +308,8 @@ GameStates.makeGame = function( game, shared ) {
             b.downLeft.destroy(); b.down.destroy(); b.downRight.destroy();
             b.leftUp.destroy();   b.left.destroy(); b.leftDown.destroy();
             b.rightUp.destroy();  b.right.destroy();b.rightDown.destroy();
-            enemy.data.lineOfSight.destroy();  game.time.events.add(100, this.killEnemy, this, enemy);
+            enemy.data.lineOfSight.destroy();  enemy.data.seeMark.destroy();
+            game.time.events.add(100, this.killEnemy, this, enemy);
         },
         killEnemy: function (enemy) {
             enemy.destroy();
@@ -318,7 +327,7 @@ GameStates.makeGame = function( game, shared ) {
                 game.physics.arcade.overlap(enemy, deathMark, deathCheck, null, this);
                 function deathCheck (e, mark) {
                     if (Math.abs(e.centerY-mark.centerY)<15 && Math.abs(e.centerX-mark.centerX)<15) {
-                        e.data.dying = true;   game.add.tween(e).to({alpha:0}, 500, "Linear", true);
+                        e.data.dying = true;   game.add.tween(e).to({alpha:0}, 500, "Linear", true); enemy.data.seeMark.alpha=0;
                     }
                 } if (enemy.data.dying) { enemy.body.velocity.set(0); if (enemy.alpha<0.1) {this.killEnemyParts(enemy);}  return; }
                 var a = enemy.animations.currentAnim;
@@ -326,7 +335,7 @@ GameStates.makeGame = function( game, shared ) {
                 var distanceY = spellcaster.centerY - enemy.centerY;
                 var distance = Math.sqrt(distanceX*distanceX + distanceY*distanceY);
                 var angle = game.math.radToDeg(Math.atan2(distanceY, distanceX));
-                if (distance > 200) enemy.data.lineOfSight.setAll('tint', 0x0066ff);
+                if (distance > 200) enemy.data.lineOfSight.setAll('tint', 0xffffff);
                 else enemy.data.lineOfSight.setAll('tint', 0x00ff00);
                 if (a.name==="right" && (angle < -70 || angle > 70)) enemy.data.lineOfSight.setAll('tint', 0xffff00);
                 else if (a.name==="left" && (angle<110 && angle>-110)) enemy.data.lineOfSight.setAll('tint', 0xffff00);
@@ -336,12 +345,13 @@ GameStates.makeGame = function( game, shared ) {
                 function resetDot (dot) {
                     dot.reset(enemy.centerX+distanceX*dot.z/20, enemy.centerY+distanceY*dot.z/20);
                     game.physics.arcade.overlap(dot, wallLayer, sightCheck, null, this);
-                } function sightCheck (dot, wall) { if (wall.index>=0) enemy.data.lineOfSight.setAll('tint', 0x0066ff); }
+                } function sightCheck (dot, wall) { if (wall.index>=0) enemy.data.lineOfSight.setAll('tint', 0xffffff); }
                 if (enemy.data.lineOfSight.children[0].tint===0x00ff00 && !enemy.data.seeSC) {
                     enemy.data.seeSC = true;
-                    //console.log("!");
+                    enemy.data.seeMark.alpha = 1;
                 } else if (enemy.data.lineOfSight.children[0].tint!==0x00ff00) {
                     enemy.data.seeSC = false;
+                    enemy.data.seeMark.alpha = 0;
                 }
                 if (enemy.data.seeSC) {
                     enemy.data.moveList = [];
@@ -438,6 +448,8 @@ GameStates.makeGame = function( game, shared ) {
                     enemy.play('up', enemy.data.speed);
                 else if (enemy.body.velocity.y > 0 && (a.name!=="down" || !a.isPlaying))
                     enemy.play('down', enemy.data.speed);
+
+                enemy.data.seeMark.centerX = enemy.centerX; enemy.data.seeMark.centerY = enemy.centerY-22;
                 function updateHitBoxes () {
                     b.upLeft.centerX = enemy.centerX-15-1;    b.upLeft.centerY = enemy.centerY-16-1;
                     b.upRight.centerX = enemy.centerX+16-1;   b.upRight.centerY = enemy.centerY-16-1;
