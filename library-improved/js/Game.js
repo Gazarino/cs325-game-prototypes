@@ -268,10 +268,10 @@ GameStates.makeGame = function( game, shared ) {
                     enemies[i].data.lineOfSight.forEachExists(fadeDot, this);
                 function fadeDot (dot) {game.add.tween(dot).to({alpha:1}, 1000, "Linear", true);}
                 spellcaster.data.revealTime = this.time.time+12000;
-            } else if (circle.data==="ssws" && spellcaster.data.spellType==="d") { cost = 35;
+            } else if (circle.data==="ssws" && spellcaster.data.spellType==="d") { cost = 40;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 game.add.tween(spellcaster).to({alpha:0}, 1000, "Linear", true);
-                spellcaster.data.vanishTime = this.time.time+6000;
+                spellcaster.data.vanishTime = this.time.time+10000;
             } else if (circle.data==="sasd" && spellcaster.data.spellType==="w") { cost = 35;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 var offScreen = (tag.x+tag.width<game.camera.x || tag.x>=game.camera.x+game.width ||
@@ -358,7 +358,7 @@ GameStates.makeGame = function( game, shared ) {
                     }
                 }
                 function endSpeech(e) { if (!e.data.dying) e.data.speech.text = ""; }
-            } else if (circle.data==="awda" && spellcaster.data.spellType==="s") { cost = 75;
+            } else if (circle.data==="awda" && spellcaster.data.spellType==="s") { cost = 70;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 if (shared.char===1) {
                     var applied = false;
