@@ -86,8 +86,11 @@ Only one mark can exist at a time. (35 mana)</li>
 </ul></li>
 <li>Mana will slowly regenerate if you have under the max amount (100).
 While the special spell is in effect, another spell cannot be used and mana will not regenerate. Cancel it early by pressing X.</li>
-<li>There are four types of spells: Warp (purple), Aim (orange), Detect (green), and Special (blue).
-The two most recent spells used get their color in the mana gauge. Each time a spell is used, you get bonuses for the colors in the
+<li>There are four types of spells: Warp (purple), Aim (orange), Detect (green), and Special (blue). As aim spells are
+	more powerful, you cannot move while casting them (the arrow keys will instead control a reticle for specifying locations).
+	Distract only requires one location input (accepted upon completion of the spell code), but Stun needs two inputs for
+	drawing an area of effect (1st point accepted halfway through casting, 2nd point accepted upon completion).</li>
+<li>The two most recent spells used get their color in the mana gauge. Each time a spell is used, you get bonuses for the colors in the
 mana gauge which are different from the color of the spell you just casted.
 <ul>
 <li>Warp (purple) bonus: Enemies move slightly slower.</li>
@@ -97,11 +100,15 @@ mana gauge which are different from the color of the spell you just casted.
 </ul>
 </li>
 <div id="spoiler" style="display:none"><br>
-To seal the enemies away, find the Spell of Responsibility and excerpts of information about the enemies via examining bookshelves.
-The location of these things is random each game. Seal Frank (the short overweight man) away by shocking him and revealing his location
-while standing in front of him. Seal Bird away by shrinking yourself and then using the Spell of Responsibility while in front of him.
+Find the Spell of Responsibility and excerpts of information about the enemies by examining bookshelves.
+The location of these things is random each game (bookshelf 1-18).
+<ul>
+<li>Seal Frank (the short overweight man) away by shocking him and revealing his location while standing in front of him.</li>
+<li>Seal Bird away by shrinking yourself and then using the Spell of Responsibility while in front of him.</li>
+</ul>
 </div>
-<button title="Click to show/hide content" type="button" onclick="if(document.getElementById('spoiler') .style.display=='none') {document.getElementById('spoiler') .style.display=''}else{document.getElementById('spoiler') .style.display='none'}">Show/hide end of game spoiler</button>
+<button title="Click to show/hide content" type="button" onclick="if(document.getElementById('spoiler') .style.display=='none') {document.getElementById('spoiler') .style.display=''}else{document.getElementById('spoiler') .style.display='none'}">
+Show/hide methods of sealing</button>
 
 </ul>
 </li><br>
