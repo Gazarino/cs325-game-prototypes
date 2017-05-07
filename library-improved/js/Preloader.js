@@ -21,6 +21,7 @@ GameStates.makePreloader = function( game ) {
 						game.load.image('dot', 'assets/dot.jpg');
 						game.load.image('spellbook', 'assets/spellbook.png');
 						game.load.image('tag', 'assets/tag.png');
+						game.load.image('tagAlt', 'assets/tagAlt.png');
 						game.load.image('reticle', 'assets/reticle.png');
 						game.load.image('electricity', 'assets/electricity.png');
 						game.load.image('custom_FF5_spritesheet', 'assets/custom_FF5_spritesheet.png');
@@ -43,6 +44,8 @@ GameStates.makePreloader = function( game ) {
 
 						game.load.spritesheet('man1', 'assets/man1 (Frank).png', 32, 32, 12);
 						game.load.spritesheet('man2', 'assets/man2 (Bird).png', 32, 32, 12);
+						game.load.spritesheet('man3', 'assets/man3 (Hiroshi).png', 32, 32, 12);
+						game.load.spritesheet('man4', 'assets/man4 (Worm).png', 32, 32, 12);
 
 						game.load.audio('titleMusic', 'assets/Elegant Gypsy.mp3');
 						game.load.audio('music', 'assets/Underworld.mp3');
