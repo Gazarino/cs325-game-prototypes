@@ -1,0 +1,189 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<link rel="icon" href="https://raw.githubusercontent.com/Phoebe3315/cs325-game-prototypes/master/phoebe.png">
+	<title>Spellcaster's Quest</title>
+	<script src="js/phaser.min.js"></script>
+	<script src="js/Boot.js"></script>
+	<script src="js/Preloader.js"></script>
+	<script src="js/MainMenu.js"></script>
+	<script src="js/Game.js"></script>
+	<script src="js/Boss.js"></script>
+	<script src="js/End.js"></script>
+	<script src="js/main.js"></script>
+
+	<style>
+			body {
+					color: #777;
+					font-family: "Avenir", Verdana, sans-serif;
+					font-size: 16px;
+					background-color: #48a3e6;
+					background-image:url(https://raw.githubusercontent.com/Phoebe3315/cs325-game-prototypes/master/KIU%20Sky%202.jpg);
+					background-repeat:repeat-y;
+					background-size:100%;
+					margin-top:33px; margin-bottom:33px;
+					margin-left:33px; margin-right:33px;
+			}
+			div.Banner {
+					margin-left:auto; margin-right:auto;
+					padding-top:10px; padding-bottom:20px;
+					width:100%; height:100%;
+					background-color:rgba(255, 255, 255, 0.9); border-radius:33px;
+					-moz-border-radius: 33px; -webkit-border-radius: 33px;
+					-moz-box-shadow: 3px 3px 15px #000; -webkit-box-shadow: 3px 3px 15px #000;
+					box-shadow: 3px 3px 15px #000
+			}
+			div.Banner2 {
+					margin-left:auto; margin-right:auto;
+					padding-left:30px; padding-right:30px;
+					padding-top:10px; padding-bottom:20px;
+					width:100%-60px; height:100%;
+					background-color:rgba(255, 255, 255, 0.9); border-radius:33px;
+					-moz-border-radius: 33px; -webkit-border-radius: 33px;
+					-moz-box-shadow: 3px 3px 15px #000; -webkit-box-shadow: 3px 3px 15px #000;
+					box-shadow: 3px 3px 15px #000
+			}
+			#readme { margin-top: 33px }
+			ul.u {margin-left:33px; margin-right:33px}
+			table.t {vertical-align: middle; align:center; width:1px; height:500px}
+	</style>
+
+</head>
+<body>
+<center><table class="t"><tr><td><div id="game"></td></tr></div></table></center><br><br>
+<div class="Banner">
+<center><h2>Spellcaster's Quest</h2></center>
+<ul class="u">
+
+<li><strong>High Concept:</strong>
+Use spells to seal away evil and avoid getting caught.
+</li>
+
+<li><strong>Theme:</strong>
+Bookworm.
+</li>
+
+<li><strong>Player Experience Goals:</strong>
+To fearfully face enemies with the power of spellcasting and seal them away with smart use of it.
+</li>
+
+<li><strong>Gameplay:</strong>
+<ul>
+<li>You need to seal away the enemies! Use spells to avoid them as you search the library for a way to seal them!
+Move with the arrow keys and press E to examine a bookshelf. To cast spells, hold either W, A, S, or D, then enter the 4-key spell code
+without letting go. For example, to cast Warp, hold W then enter s, s, a, a.</li>
+<li>Spell List:
+<ul>
+<li>Warp: W~ssaa | Teleports you in the direction you're facing. (25 mana)</li>
+<li>Tag: W~sasd | Creates a mark under you. If a mark is already on screen, warps you to the mark.
+Only one mark can exist at a time. (30 mana)</li>
+<li>Distract: A~swsd | Creates an image of you at the specified location. (45 mana)</li>
+<li>Stun: A~ssdd | Creates a shock field in the specified location. (50 mana)</li>
+<li>Vanish: D~ssws | Makes you invisible. (40 mana)</li>
+<li>Reveal: D~asas | Creates dotted lines indicating the location of each enemy. (20 mana)</li>
+<li>Fade: D~sawa | Makes bookshelves and hidden passages see-through. (20 mana)</li>
+<li>Shrink: S~wdwa | Decreases your size. (20 mana)</li>
+<li>Special: S~awda | Unique character spell; see game for details. (65 mana)</li>
+</ul></li>
+<li>Mana will slowly regenerate if you have under the max amount (100).
+While the special spell is in effect, another spell cannot be used. Cancel it early by pressing X.</li>
+<li>There are four types of spells: Warp (purple), Aim (orange), Detect (green), and Special (blue). As aim spells are
+	more powerful, you cannot move while casting them (the arrow keys will instead control a reticle for specifying locations).
+	Distract only requires one location input (accepted upon completion of the spell code), but Stun needs two inputs for
+	drawing an area of effect (1st point accepted halfway through casting, 2nd point accepted upon completion).</li>
+<li>The two most recent spells used get their color in the mana gauge. Each time a spell is used, you get bonuses for the colors in the
+mana gauge which are different from the color of the spell you just casted. Bonuses can stack (if you use multiple spells of the same type
+in a row and then a spell of a different type), and they remain in effect until another spell is casted.
+<ul>
+<li>Warp (purple) bonus: Enemies move slightly slower.</li>
+<li>Aim (orange) bonus:	You gain greater range of sight.</li>
+<li>Detect (green) bonus:	Enemy range of sight slightly decreased.</li>
+<li>Special (blue) bonus:	Your mana regenerates slightly faster.</li>
+</ul>
+</li>
+<div id="spoiler" style="display:none"><br>
+Find the Spell of Responsibility and excerpts of information about the enemies by examining bookshelves.
+The location of these things is random each game (bookshelf 1-20).
+<ul>
+<li>Seal Frank (the short overweight man) away by shocking him and revealing his location while standing in front of him.</li>
+<li>Seal Bird away by shrinking yourself and then using the Spell of Responsibility while in front of him.</li>
+</ul>
+</div>
+<button title="Click to show/hide content" type="button" onclick="if(document.getElementById('spoiler') .style.display=='none') {document.getElementById('spoiler') .style.display=''}else{document.getElementById('spoiler') .style.display='none'}">
+Show/hide methods of sealing</button>
+
+</ul>
+</li><br>
+
+<li><strong>Prototype Goal:</strong>
+Test a semi-realistic spellcasting system.
+</li>
+
+<li><strong>Features:</strong>
+	Multiple playable characters, a unique bonus system, and the ability to use a wide variety of spells.
+</li>
+
+<li><strong>Setting/Premise:</strong>
+You are a young spellcaster who has entered an ancient library in search of an answer to the existential question! However, upon opening one book,
+you've unleashed an evil demon which has brought to life evil characters from the books in the library! You must now seal them away.
+</li>
+
+<li><strong>Target Audience:</strong>
+Fans of RPGs, stealth games, or magic.
+</li>
+
+<li><strong>Play Time:</strong>
+About 4 minutes
+</li>
+
+<li><strong>Tips/Strategies:</strong>
+<ul>
+<li>After an enemy sees you, try warping to the other side of a bookshelf to escape!</li>
+<li>In a pinch? Make yourself small and hide behind the bookshelves along the top wall!</li>
+<li>Plan on using tag? Try using an aim spell first; this way, you'll be able to return to the tag from farther away!</li>
+<li>Having trouble casting one spell quickly after another? Try using shrink beforehand to increase your mana regen speed!</li>
+<li>Try to make sure you don't cast spells incorrectly or try to cast them when you don't have enough mana.
+If you do, you'll lose your current bonus effects!</li>
+<li>Mana does not regenerate when you are casting a spell. If you are full on mana, it might be a good idea to start casting
+a spell before you really need it so it takes less time to finish. Otherwise, try to complete spells quickly after you begin
+casting or you'll be wasting mana!</li>
+<li>If you use your special spell, be extra careful as it makes you pretty vulnerable. Be prepared to end it early if you need
+to use another spell. If possible, don't be near any enemies when the duration ends!</li>
+<li>When casting stun, make the area of effect as small as you can while still making contact with enemies;
+the smaller the area of effect, the longer the stun will last! Just be sure not to accidentally stun yourself.</li>
+<li>For most users, special spells will be hardest to cast because A, D, and W must be pressed while holding S.
+If this is hard for you, try holding S at the top-right corner and press W in the bottom-left corner.
+(Proper spellcasting requires appropriate pronounciation.)</li>
+<li>Having trouble avoiding the shots of the demon? Either make yourself invisible or stun him!</li>
+</ul>
+</li>
+
+<li><strong>Prototype Assets:</strong>
+<ul>
+	<li>Music from the game "Cladun X2"; includes "Elegant Gypsy", "Underworld", and "Black Metallic Dragon".
+	End game music is "Slicing the Wind" from "Cladun: This is an RPG!"</li>
+	<li>Playable chars from <a href="http://spritedatabase.net/file/13162">PatchCon: Defend the Library!</a></li>
+	<li>Enemy chars: Frank slightly modified from <a href="http://www.gdunlimited.net/forums/gallery/image/1393-blog200812png/">this image</a>,
+	Bird and Worm art by <a href="http://www.gdunlimited.net/forums/gallery/image/893-avadan-3/">Avadan</a>, Hiroshi is self-constructed
+using RPG Maker VX Ace, and demon from <a href="https://s-media-cache-ak0.pinimg.com/originals/cb/14/b5/cb14b5de41fbf0c14891a860224c496a.png">Digimon Battle Spirit</a>.</li>
+	<li>Frog from <a href="http://spritedatabase.net/file/796">Izuna 2: The Unemployed Ninja Returns</a>.</li>
+	<li>Background: self-constructed from art in <a href="http://spritedatabase.net/file/7806">Final Fantasy V</a>.</li>
+	<li>Spellbook from <a href="https://opengameart.org/content/spellbook-template">this template</a>.</li>
+	<li>Magic circle: self-constructed from <a href="http://dereproject.com/wp-content/uploads/2014/12/magic_circle_by_chroza-d3heffc.jpg">this image</a>.</li>
+	<li>Sound effects: thunder from <a href="https://www.youtube.com/watch?v=SInUq2YOWv4">this video</a>, "Rain Heavy Loud" from YouTube Audio Library.</li>
+  <li>Everything else is self-made.</li>
+</ul>
+</li>
+
+<li><strong>Prototype Closest Other Game:</strong>
+<ul> The closest other game is the <a href="https://phoebe3315.github.io/cs325-game-prototypes/library-improved/">previous version</a> of this game.
+	For this version, I've added more enemy characters, a new library environment, a boss battle, and an ending cutscene.
+</ul>
+</li>
+
+</ul>
+</div>
+<br><br>
+</body>
+</html>
