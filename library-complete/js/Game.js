@@ -812,9 +812,9 @@ GameStates.makeGame = function( game, shared ) {
                 } else if (enemy.body.velocity.x===0 && enemy.body.velocity.y===0) enemy.data.counter++;
                 else enemy.data.counter = 0;
                 var ss = 1;
-                if (enemy.data.id===3 && enemy.centerX>1111 && enemy.centerY<290 && !enemy.data.controlled) {
-                    if (enemy.data.seeMark.alpha===0) ss = .4;
-                    else ss=.65;
+                if (enemy.data.id===3 && enemy.centerX>1000 && enemy.centerY<290 && !enemy.data.controlled) {
+                    if (enemy.data.seeMark.alpha===0) ss = .5;
+                    else ss=.8;
                     if (Math.abs(enemy.body.velocity.x)>40) enemy.body.velocity.x*=ss;
                     if (Math.abs(enemy.body.velocity.y)>40) enemy.body.velocity.y*=ss;
                 }
