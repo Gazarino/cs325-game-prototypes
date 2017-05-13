@@ -629,7 +629,7 @@ GameStates.makeGame = function( game, shared ) {
                 if (enemy === enemies[i]) enemies.splice(i,1);
             if (enemies.length===0) {
                 textFinal.text = "You sealed all\nthe enemies away!\nNow you must deal\nwith the demon that\nunleashed them...";
-                game.camera.onFadeComplete.add(quitGame,this);
+                game.camera.onFadeComplete.add(quitGame,this);  music.fadeOut(3000);
                 game.time.events.add(4000, this.goToBoss, this);
             }
         },
@@ -642,11 +642,11 @@ GameStates.makeGame = function( game, shared ) {
                 } else { e.data.speech.text = "Grr..! I won't be\nsealed away by someone\nwho knows nothing\nabout me!";
                     game.time.events.add(3500, endSpeech, this, e);
                 }
-            } else if (e.data.id===1 && e.data.stun>0 && e.data.seeSC) { game.time.events.add(5000, endSpeech, this, e);
+            } /*else if (e.data.id===1 && e.data.stun>0 && e.data.seeSC) { game.time.events.add(5000, endSpeech, this, e);
                 e.data.speech.text = "I'll sneak up on you\nwhen you least\nexpect it and get\nyou back for this...!";
             } else if (e.data.id===1 && e.data.stun>0) { game.time.events.add(3500, endSpeech, this, e);
                 e.data.speech.text = "(This really hurts...)";
-            }
+            }//*/
 
             if (e.data.id===3 && e.data.seeMark.animations.currentAnim.name==="H" && decorLayer.alpha===.5) {
                 e.data.dying = true;   game.add.tween(e).to({alpha:0}, 7000, "Linear", true);
@@ -813,7 +813,7 @@ GameStates.makeGame = function( game, shared ) {
                 else enemy.data.counter = 0;
                 var ss = 1;
                 if (enemy.data.id===3 && enemy.centerX>1111 && enemy.centerY<290 && enemy.data.seeMark.alpha===0 && !enemy.data.controlled) {
-                    ss = .45;    if (Math.abs(enemy.body.velocity.x)>40) enemy.body.velocity.x*=ss;
+                    ss = .4;    if (Math.abs(enemy.body.velocity.x)>40) enemy.body.velocity.x*=ss;
                     if (Math.abs(enemy.body.velocity.y)>40) enemy.body.velocity.y*=ss;
                 }
                 if (!enemy.data.dying) this.enemyDeathCheck(enemy);
