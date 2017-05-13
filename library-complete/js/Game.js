@@ -398,7 +398,7 @@ GameStates.makeGame = function( game, shared ) {
                     }
                 }
                 function endSpeech(e) { if (!e.data.dying) e.data.speech.text = ""; }
-            } else if (circle.data==="awda" && spellcaster.data.spellType==="s") { cost = 65;
+            } else if (circle.data==="awda" && spellcaster.data.spellType==="s") { cost = 55;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 if (shared.char===1) {
                     var applied = false;

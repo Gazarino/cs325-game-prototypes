@@ -341,7 +341,7 @@ GameStates.makeBoss = function( game, shared ) {
                         }
                     }
                 } else {end("The demon does\nnot see you."); return;}
-            } else if (circle.data==="awda" && spellcaster.data.spellType==="s") { cost = 65;
+            } else if (circle.data==="awda" && spellcaster.data.spellType==="s") { cost = 55;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 if (shared.char===1) {
                     if (enemies[0] && enemies[0].data && enemies[0].data.seeSC) { end("The demon is immune."); return; }
