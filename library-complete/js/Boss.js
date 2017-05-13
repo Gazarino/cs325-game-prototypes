@@ -51,7 +51,7 @@ GameStates.makeBoss = function( game, shared ) {
             spellcaster = game.add.sprite(560, 525, 'girl'+shared.char);
             spellcaster.scale.set(.75);   spellcaster.anchor.set(.5);
             spellcaster.data = {speed:70, spellInUse:false, spellType:"", stun:0, shock:null, specialInUse:false,
-                                shrinkTime:0, revealTime:0, vanishTime:0, fadeTime:0, regenTime:0, regenRate:450};
+                                shrinkTime:0, revealTime:0, vanishTime:0, fadeTime:0, regenTime:0, regenRate:425};
             game.physics.arcade.enable(spellcaster);
             spellcaster.animations.add('up', [0,1,2,1]);
             spellcaster.animations.add('upSide', [3,4,5,4]);
@@ -316,12 +316,12 @@ GameStates.makeBoss = function( game, shared ) {
                             {spellcaster.centerY++; spellcaster.centerX++;}
                     }
                 }
-            } else if (circle.data==="swsd" && spellcaster.data.spellType==="a") { cost = 45;
+            } else if (circle.data==="swsd" && spellcaster.data.spellType==="a") { cost = 40;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 if (this.collidingWithWall(decoy)) { end("Cannot place decoy\ninside a wall."); return; }
                 decoy.data.controllable = false;   game.add.tween(decoy).to({alpha:.75}, 1000, "Linear", true);
                 decoy.data.time = this.time.time+12000;
-            } else if (circle.data==="ssdd" && spellcaster.data.spellType==="a") { cost = 50;
+            } else if (circle.data==="ssdd" && spellcaster.data.spellType==="a") { cost = 45;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 if (aimArea.tint===0xff0000) { end("Area of effect too large."); return; }
                 electricity.alpha = 1;    aimArea.alpha = 0;
@@ -408,7 +408,7 @@ GameStates.makeBoss = function( game, shared ) {
             }
         },
         endSpell: function () {
-            this.windowResize(320);  shotSpeed=80;   spellcaster.data.regenRate=450;
+            this.windowResize(320);  shotSpeed=80;   spellcaster.data.regenRate=425;
             if (spellcaster.data.spellType!=="NaN") {
                 if (manaTop.tint===0xcc33ff && spellcaster.data.spellType!=="w")  shotSpeed-=6;
                 if (manaBottom.tint===0xcc33ff && spellcaster.data.spellType!=="w")  shotSpeed-=6;

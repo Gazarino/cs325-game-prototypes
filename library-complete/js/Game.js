@@ -52,7 +52,7 @@ GameStates.makeGame = function( game, shared ) {
             spellcaster = game.add.sprite(666, 525, 'girl'+shared.char);
             spellcaster.scale.set(.75);   spellcaster.anchor.set(.5);
             spellcaster.data = {speed:70, spellInUse:false, spellType:"", stun:0, shock:null, specialInUse:false,
-                                shrinkTime:0, revealTime:0, vanishTime:0, fadeTime:0, regenTime:0, regenRate:450};
+                                shrinkTime:0, revealTime:0, vanishTime:0, fadeTime:0, regenTime:0, regenRate:425};
             game.physics.arcade.enable(spellcaster);
             spellcaster.animations.add('up', [0,1,2,1]);
             spellcaster.animations.add('upSide', [3,4,5,4]);
@@ -368,12 +368,12 @@ GameStates.makeGame = function( game, shared ) {
                             {spellcaster.centerY++; spellcaster.centerX++;}
                     }
                 }
-            } else if (circle.data==="swsd" && spellcaster.data.spellType==="a") { cost = 45;
+            } else if (circle.data==="swsd" && spellcaster.data.spellType==="a") { cost = 40;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 if (this.collidingWithWall(decoy)) { end("Cannot place decoy\ninside a wall."); return; }
                 decoy.data.controllable = false;   game.add.tween(decoy).to({alpha:.75}, 1000, "Linear", true);
                 decoy.data.time = this.time.time+12000;
-            } else if (circle.data==="ssdd" && spellcaster.data.spellType==="a") { cost = 50;
+            } else if (circle.data==="ssdd" && spellcaster.data.spellType==="a") { cost = 45;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 if (aimArea.tint===0xff0000) { end("Area of effect too large."); return; }
                 electricity.alpha = 1;    aimArea.alpha = 0;
@@ -486,7 +486,7 @@ GameStates.makeGame = function( game, shared ) {
             }
         },
         endSpell: function () {
-            this.windowResize(320);  enemySpeed=80;   enemySight=200;   spellcaster.data.regenRate=450;
+            this.windowResize(320);  enemySpeed=80;   enemySight=200;   spellcaster.data.regenRate=425;
             if (spellcaster.data.spellType!=="NaN") {
                 if (manaTop.tint===0xcc33ff && spellcaster.data.spellType!=="w")  enemySpeed-=6;
                 if (manaBottom.tint===0xcc33ff && spellcaster.data.spellType!=="w")  enemySpeed-=6;
@@ -812,8 +812,10 @@ GameStates.makeGame = function( game, shared ) {
                 } else if (enemy.body.velocity.x===0 && enemy.body.velocity.y===0) enemy.data.counter++;
                 else enemy.data.counter = 0;
                 var ss = 1;
-                if (enemy.data.id===3 && enemy.centerX>1111 && enemy.centerY<290 && enemy.data.seeMark.alpha===0 && !enemy.data.controlled) {
-                    ss = .4;    if (Math.abs(enemy.body.velocity.x)>40) enemy.body.velocity.x*=ss;
+                if (enemy.data.id===3 && enemy.centerX>1111 && enemy.centerY<290 && !enemy.data.controlled) {
+                    if (enemy.data.seeMark.alpha===0) ss = .4;
+                    else ss=.65;
+                    if (Math.abs(enemy.body.velocity.x)>40) enemy.body.velocity.x*=ss;
                     if (Math.abs(enemy.body.velocity.y)>40) enemy.body.velocity.y*=ss;
                 }
                 if (!enemy.data.dying) this.enemyDeathCheck(enemy);
