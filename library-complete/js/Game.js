@@ -687,7 +687,7 @@ GameStates.makeGame = function( game, shared ) {
                         e.data.distractCount++;
                         e.data.counter=0;   e.body.velocity.set(0);
                         enemy.data.seeMark.play('?');   enemy.data.seeMark.alpha = 1;
-                        if (e.data.id===3 && e.centerX>1111 && e.centerY<290) {enemy.data.seeMark.play('H'); enemy.data.distractCount=1;}
+                        if (e.data.id===3 && e.centerX>1030 && e.centerY<290) {enemy.data.seeMark.play('H'); enemy.data.distractCount=1;}
                         else if (e.data.id===3) enemy.data.seeMark.play('..');
                     }
                 }
@@ -812,7 +812,7 @@ GameStates.makeGame = function( game, shared ) {
                 } else if (enemy.body.velocity.x===0 && enemy.body.velocity.y===0) enemy.data.counter++;
                 else enemy.data.counter = 0;
                 var ss = 1;
-                if (enemy.data.id===3 && enemy.centerX>1000 && enemy.centerY<290 && !enemy.data.controlled) {
+                if (enemy.data.id===3 && enemy.centerX>1030 && enemy.centerY<290 && !enemy.data.controlled) {
                     if (enemy.data.seeMark.alpha===0) ss = .5;
                     else ss=.8;
                     if (Math.abs(enemy.body.velocity.x)>40) enemy.body.velocity.x*=ss;
