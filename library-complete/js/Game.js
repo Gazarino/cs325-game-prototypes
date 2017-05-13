@@ -551,6 +551,7 @@ GameStates.makeGame = function( game, shared ) {
                 game.physics.arcade.overlap(enemies, decoy, decoyLayerCheck, null, this);
             }
             function decoyLayerCheck (e, d) {
+                if (!e || !e.data || !d || !d.data) return;
                 if (d.centerY+d.height/2 < e.centerY+e.height/2 && d.z > e.z) sprites.swap(d, e);
                 else if (d.centerY+d.height/2 > e.centerY+e.height/2 && d.z < e.z) sprites.swap(d, e);
             }
@@ -585,6 +586,7 @@ GameStates.makeGame = function( game, shared ) {
             }
         },
         touchingEnemy: function (sc, enemy) {
+            if (!this.lineExists(enemy) || enemy && enemy.data && enemy.data.dying) return;
             if (sc.centerY+sc.height/2 < enemy.centerY+enemy.height/2 && sc.z > enemy.z) sprites.swap(sc, enemy);
             else if (sc.centerY+sc.height/2 > enemy.centerY+enemy.height/2 && sc.z < enemy.z) sprites.swap(sc, enemy);
             if (enemy && enemy.data.frog) { var f = enemy.data.frog;
