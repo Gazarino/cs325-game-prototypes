@@ -387,7 +387,7 @@ GameStates.makeGame = function( game, shared ) {
                 closest.data.stun = 200;
                 game.time.events.add(500, startSpeech, this, closest);    game.time.events.add(3500, endSpeech, this, closest);
                 function startSpeech(e) {
-                    if (e.data.id===1) e.data.speech.text = "I enjoy killing\nand raping others!";
+                    if (e.data.id===1) e.data.speech.text = "I'm responsible for\nmurdering and raping others!";
                     else if (e.data.id===3) e.data.speech.text = "...\nI might be guilty\nof raping someone.";
                     else if (e.data.id===4) e.data.speech.text = "I'm responsible for\nkilling my own mother.";
                     else if (spellcaster.scale.y>.5) e.data.speech.text = "I'm not responsible\nfor anyone your size...";
@@ -642,9 +642,9 @@ GameStates.makeGame = function( game, shared ) {
                 } else { e.data.speech.text = "Grr..! I won't be\nsealed away by someone\nwho knows nothing\nabout me!";
                     game.time.events.add(3500, endSpeech, this, e);
                 }
-            } /*else if (e.data.id===1 && e.data.stun>0 && e.data.seeSC) { game.time.events.add(5000, endSpeech, this, e);
+            } else if (e.data.id===1 && e.data.stun>0 && e.data.seeSC && e.data.speech.text==="") { game.time.events.add(5000, endSpeech, this, e);
                 e.data.speech.text = "I'll sneak up on you\nwhen you least\nexpect it and get\nyou back for this...!";
-            } else if (e.data.id===1 && e.data.stun>0) { game.time.events.add(3500, endSpeech, this, e);
+            } else if (e.data.id===1 && e.data.stun>0 && e.data.speech.text==="") { game.time.events.add(3500, endSpeech, this, e);
                 e.data.speech.text = "(This really hurts...)";
             }//*/
 
