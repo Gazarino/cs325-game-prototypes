@@ -31,8 +31,11 @@ GameStates.makePreloader = function( game ) {
 						game.load.image('manaTop', 'assets/manaTop.png');
 						game.load.image('manaBottom', 'assets/manaBottom.png');
 						game.load.image('bg', 'assets/cutsceneBG.jpg');
+						game.load.image('facePic', 'assets/portrait.jpg');
 
             game.load.atlas('playButton', 'assets/play_button.png', 'assets/play_button.json');
+						game.load.atlas('studyButton', 'assets/study_button.png', 'assets/play_button.json');
+						game.load.atlas('exitButton', 'assets/exit_button.png', 'assets/play_button.json');
 						game.load.atlas('submitButton', 'assets/submit_button.png', 'assets/play_button.json');
 
 						game.load.spritesheet('circle', 'assets/circle.png', 64, 64, 16);
@@ -43,6 +46,7 @@ GameStates.makePreloader = function( game ) {
 						game.load.spritesheet('girl2', 'assets/girl2 (Kaguya Houraisan).png', 32, 32, 15);
 						game.load.spritesheet('girl3', 'assets/girl3 (Reisen Udongein Inaba).png', 32, 32, 15);
 						game.load.spritesheet('girl4', 'assets/girl4 (Ran Yakumo).png', 32, 32, 15);
+						game.load.spritesheet('man0', 'assets/man0_smaller.png', 32, 32, 12);
 						game.load.spritesheet('man1', 'assets/man1 (Frank).png', 32, 32, 12);
 						game.load.spritesheet('man2', 'assets/man2 (Bird).png', 32, 32, 12);
 						game.load.spritesheet('man3', 'assets/man3 (Hiroshi).png', 32, 32, 12);
@@ -51,6 +55,7 @@ GameStates.makePreloader = function( game ) {
 						game.load.spritesheet('light', 'assets/light.png', 100, 100, 19);
 
 						game.load.audio('titleMusic', 'assets/Elegant Gypsy.mp3');
+						game.load.audio('studyMusic', 'assets/The Plot.mp3');
 						game.load.audio('music', 'assets/Underworld.mp3');
 						game.load.audio('endMusic', 'assets/Slicing the Wind.mp3');
 						game.load.audio('bossMusic', 'assets/Black Metallic Dragon.mp3');
@@ -58,6 +63,7 @@ GameStates.makePreloader = function( game ) {
 						game.load.audio('rain', 'assets/Rain_Heavy_Loud.mp3');
 
 						game.load.tilemap('map', 'assets/library2.json', null, Phaser.Tilemap.TILED_JSON);
+						game.load.tilemap('studyMap', 'assets/library.json', null, Phaser.Tilemap.TILED_JSON);
 						game.load.tilemap('bossMap', 'assets/library3.json', null, Phaser.Tilemap.TILED_JSON);
         },
 

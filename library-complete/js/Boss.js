@@ -72,7 +72,9 @@ GameStates.makeBoss = function( game, shared ) {
             enemies[0].anchor.x = .4;
             moveTime = this.time.time+2500;   shotTime=this.time.time+4000;
             demonXDist=0;   demonYDist=0;
-
+            spellcaster.play("up", 50);
+            game.camera.follow(spellcaster);
+            decorLayer = map.createLayer('Bookshelves');
             light = game.add.sprite(560, 525, 'light');   light.alpha = 0;
             game.physics.arcade.enable(light);
             light.animations.add('light', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]);
@@ -80,9 +82,6 @@ GameStates.makeBoss = function( game, shared ) {
             aimArea = game.add.sprite(0, 0, 'dot');     aimArea.alpha=0;      aimArea.tint=0xffff00;
             electricity = game.add.sprite(0, 0, 'electricity'); electricity.alpha=0;  game.physics.arcade.enable(electricity);
             shockMarks = game.add.group();
-
-            game.camera.follow(spellcaster);
-            decorLayer = map.createLayer('Bookshelves');
 
             textBook = game.add.text(5, 5, "Press H to close spellbook.", {font:"8px Sitka Small", fill:"#ffffff", align:"center" });
             textFindings = game.add.text(5, 5, "", {font:"8px Sitka Small", fill:"#ffffff", align:"left" });
@@ -197,7 +196,7 @@ GameStates.makeBoss = function( game, shared ) {
                     game.add.tween(circle).to({alpha:1}, 1000, "Linear", true);
                 }
             }
-            if (circle.tint===0xffa33a && circle.alpha>0) reticle.alpha=1; else reticle.alpha=0;
+            if (circle.tint===0xffa33a && spellKeys.a.isDown) reticle.alpha=1; else reticle.alpha=0;
             if (circle.alpha===1 && (circle.tint===0xcc33ff && !spellKeys.w.isDown || circle.tint===0xffa33a && !spellKeys.a.isDown
                                   || circle.tint===0x3385ff && !spellKeys.s.isDown || circle.tint===0x33ff33 && !spellKeys.d.isDown)) {
                 spellcaster.data.spellInUse = false;  game.add.tween(circle).to({alpha:0}, 500, "Linear", true);

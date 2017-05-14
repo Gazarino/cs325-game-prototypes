@@ -69,7 +69,8 @@ GameStates.makeGame = function( game, shared ) {
             function createEnemy (num, x, y) {
                 var enemy = game.add.sprite(x, y, 'man'+num);
                 enemy.data = {collisionBoxes:null, lineOfSight:game.add.physicsGroup(), seeSC:false, moveList:[], frogTimer:0, frog:null,
-                          controlled:false, counter:0, dying:false, seeMark:null, distractCount:0, stun:0, shock:null, id:num, speech:null};
+                              controlled:false, counter:0, dying:false, seeMark:null, distractCount:0, stun:0,
+                              shock:null, id:num, speech:null, alignTime:0};
                 enemy.data.collisionBoxes = {upLeft:game.add.sprite(x, y, 'dot'), upRight:game.add.sprite(x, y, 'dot'),
                                             downLeft:game.add.sprite(x, y, 'dot'), downRight:game.add.sprite(x, y, 'dot'),
                                             rightUp:game.add.sprite(x, y, 'dot'), rightDown:game.add.sprite(x, y, 'dot'),
@@ -100,13 +101,13 @@ GameStates.makeGame = function( game, shared ) {
                 sprites.add(enemy);
                 return enemy;
             }
+            spellcaster.play("down", 50);
+            game.camera.follow(spellcaster);
+            decorLayer = map.createLayer('Bookshelves'); //decorLayer.alpha=0;
             reticle = game.add.sprite(0,0,'reticle');   reticle.alpha = 0;    game.physics.arcade.enable(reticle);
             aimArea = game.add.sprite(0, 0, 'dot');     aimArea.alpha=0;      aimArea.tint=0xffff00;
             electricity = game.add.sprite(0, 0, 'electricity'); electricity.alpha=0;  game.physics.arcade.enable(electricity);
             shockMarks = game.add.group();
-
-            game.camera.follow(spellcaster);
-            decorLayer = map.createLayer('Bookshelves'); //decorLayer.alpha=0;
             for (var i = 0; i < enemies.length; i++) {
                 enemies[i].data.seeMark = game.add.sprite(0,0,'seeMark');  enemies[i].data.seeMark.alpha = 0;
                 enemies[i].data.seeMark.animations.add('!', [0]);   enemies[i].data.seeMark.animations.add('?', [1]);
@@ -230,7 +231,7 @@ GameStates.makeGame = function( game, shared ) {
                     game.add.tween(circle).to({alpha:1}, 1000, "Linear", true);
                 }
             }
-            if (circle.tint===0xffa33a && circle.alpha>0) reticle.alpha=1; else reticle.alpha=0;
+            if (circle.tint===0xffa33a && spellKeys.a.isDown) reticle.alpha=1; else reticle.alpha=0;
             if (circle.alpha===1 && (circle.tint===0xcc33ff && !spellKeys.w.isDown || circle.tint===0xffa33a && !spellKeys.a.isDown
                                   || circle.tint===0x3385ff && !spellKeys.s.isDown || circle.tint===0x33ff33 && !spellKeys.d.isDown)) {
                 spellcaster.data.spellInUse = false;  game.add.tween(circle).to({alpha:0}, 500, "Linear", true);
@@ -586,7 +587,7 @@ GameStates.makeGame = function( game, shared ) {
             }
         },
         touchingEnemy: function (sc, enemy) {
-            if (!this.lineExists(enemy) || enemy && enemy.data && enemy.data.dying) return;
+            //if (!this.lineExists(enemy) || enemy && enemy.data && enemy.data.dying) return;
             if (sc.centerY+sc.height/2 < enemy.centerY+enemy.height/2 && sc.z > enemy.z) sprites.swap(sc, enemy);
             else if (sc.centerY+sc.height/2 > enemy.centerY+enemy.height/2 && sc.z < enemy.z) sprites.swap(sc, enemy);
             if (enemy && enemy.data.frog) { var f = enemy.data.frog;
@@ -674,12 +675,12 @@ GameStates.makeGame = function( game, shared ) {
                 enemy.data.speech.x = enemy.centerX;  enemy.data.speech.y = enemy.centerY-32;
                 game.physics.arcade.overlap(enemy, electricity, this.stunCheck, null, this);
                 if (enemy.data.stun>0) {enemy.data.stun--;  enemy.data.counter=0;   enemy.body.velocity.set(0);}
-                else if (enemy.data.shock) enemy.data.shock.destroy();
+                else if (enemy.data.shock) {sprites.remove(enemy.data.shock);  enemy.data.shock.kill();  enemy.data.shock = null;}
                 if (enemy.data.frogTimer>0) {enemy.data.frogTimer--;  enemy.data.counter=0;   enemy.body.velocity.set(0);}
                 else if (enemy.data.frog && enemy.data.frog.alpha===1) {
                     game.add.tween(enemy.data.frog).to({alpha:0}, 1000, "Linear", true);
                     game.add.tween(enemy).to({alpha:1}, 1000, "Linear", true);
-                } else if (enemy.data.frog && enemy.data.frog.alpha<.1) enemy.data.frog.destroy();
+                } else if (enemy.data.frog && enemy.data.frog.alpha<.1) {sprites.remove(enemy.data.frog);  enemy.data.frog.kill();  enemy.data.frog=null;}
                 if (decoy.alpha>.1 && enemy.data.distractCount<200) game.physics.arcade.overlap(enemy, decoy, decoyCheck, null, this);
                 else if (decoy.alpha<=.1) {enemy.data.distractCount = 0;  enemy.data.seeMark.alpha = 0;}
                 function decoyCheck (e, d) {
@@ -753,15 +754,19 @@ GameStates.makeGame = function( game, shared ) {
                 else if (a.name==="down" && pathCheck(b.downRight.data,b.downLeft.data,b.down.data)) {changeDirection();}
 
                 function changeDirection () {
-                    enemy.body.velocity.set(0);   var r=1, c=0;
+                    enemy.body.velocity.set(0);   var r=1, c=0, item=0;
                     while (r>0 && !enemy.data.controlled && enemy.alpha===1 && c<33) {
                         r = game.rnd.integerInRange(1, 4);
-                        if (enemy.data.moveList.length>0) {r = enemy.data.moveList[0];  enemy.data.moveList.shift();}
+                        if (enemy.data.moveList.length>0 && item===0) {
+                            r = enemy.data.moveList[0];  item=enemy.data.moveList[0];  enemy.data.moveList.shift();
+                        }
                         if (r===1) r = tryDirection(b.rightUp.data, b.right.data, b.rightDown.data, true, 1, 1);
                         else if (r===2) r = tryDirection(b.leftUp.data, b.left.data, b.leftDown.data, true, -1, 2);
                         else if (r===3) r = tryDirection(b.upLeft.data, b.up.data, b.upRight.data, false, -1, 3);
                         else if (r===4) r = tryDirection(b.downLeft.data, b.down.data, b.downRight.data, false, 1, 4);
                         c++;
+                        if (r>0 && item>0) {enemy.data.moveList.unshift(item); item=-1;}
+                        else item=0;
                     }
                 }
                 function tryDirection (b1,b,b2,side,sign,dir) {
@@ -836,6 +841,10 @@ GameStates.makeGame = function( game, shared ) {
 
                 enemy.data.seeMark.centerX = enemy.centerX; enemy.data.seeMark.centerY = enemy.centerY-22;
                 if (b.right.data===0 && b.left.data===0 && b.up.data===0 && b.down.data===0) enemy.body.velocity.set(0);
+                if (this.time.time>enemy.data.alignTime) {   enemy.data.alignTime=this.time.time+250;
+                    if (enemy.centerX%1!==0) enemy.centerX = Math.round(enemy.centerX);
+                    if (enemy.centerY%1!==0) enemy.centerY = Math.round(enemy.centerY);
+                }
                 function updateHitBoxes () {
                     b.upLeft.centerX = enemy.centerX-15-1;    b.upLeft.centerY = enemy.centerY-16-1;
                     b.upRight.centerX = enemy.centerX+16-1;   b.upRight.centerY = enemy.centerY-16-1;

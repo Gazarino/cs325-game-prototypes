@@ -3,20 +3,23 @@
 GameStates.makeMainMenu = function( game, shared ) {
 
 		var music = null;
-		var playButton = null, submitButton = null;
+		var playButton = null, submitButton = null, studyButton = null, goingToGame = null;
 		var titleText = null, infoText = null;
 		var raindrops = null, rain = null;
 		var lightning = null, lightningTime = null, thunder = null;
 		var girl1=null, girl2=null, girl3=null, girl4=null, selected = null;
 
-    function startGame(pointer) {
+		function startGame(pointer) {
 				music.stop();
 				rain.stop();
 				shared.char = selected;
-        game.state.start('Game');
+				if (goingToGame)
+        		game.state.start('Game');
+				else
+						game.state.start('Study');
     }
 
-    return {
+    var mainGame = {
 
         create: function () {
             music = game.add.audio('titleMusic');
@@ -30,11 +33,16 @@ GameStates.makeMainMenu = function( game, shared ) {
 						thunder.addMarker("thunder4", 31.1, 9.7);
 						thunder.volume = .55;
 
+						goingToGame = true;
             game.add.sprite(0, 0, 'titlePage');
 						titleText = game.add.text(game.width/2, game.height/6, "Spellcaster's Quest", {font:"40px Gabriola", fill:"#ffffff", align:"center" });
 						titleText.anchor.set(.5);
 						titleText.fontStyle = "bold";
-						playButton = game.add.button(game.width/2, game.height*.75, 'playButton', this.createPlayOptions, null, 'over', 'out', 'down');
+						studyButton = game.add.button(game.width/2, game.height*.65, 'studyButton', studyReady, null, 'over', 'out', 'down');
+						studyButton.anchor.set(.5);
+						studyButton.scale.set(.45);
+						function studyReady () {goingToGame=false;	mainGame.createPlayOptions();}
+						playButton = game.add.button(game.width/2, game.height*.8, 'playButton', this.createPlayOptions, null, 'over', 'out', 'down');
 						playButton.anchor.set(.5);
 						playButton.scale.set(.45);
 						submitButton = game.add.button(game.width/2, game.height*.83, 'submitButton', startGame, null, 'over', 'out', 'down');
@@ -73,7 +81,7 @@ GameStates.makeMainMenu = function( game, shared ) {
 						girl1.alpha=1;		girl2.alpha=2;		girl3.alpha=3;		girl4.alpha=4;
 						selected = shared.char;
 						submitButton.alpha = 1;		submitButton.inputEnabled = true;
-						playButton.destroy();
+						playButton.destroy();			studyButton.destroy();
 				},
 				selectChar: function () {
             if (girl1.alpha===0 || game.input.mousePointer.y > 200) return;
@@ -140,5 +148,5 @@ GameStates.makeMainMenu = function( game, shared ) {
 				},
 				lightningEnd: function () { game.add.tween(lightning).to({alpha:0}, 25, "Linear", true);	},
 				playThunder: function (num) {	thunder.play("thunder"+num); },
-    };
+    }; return mainGame;
 };
