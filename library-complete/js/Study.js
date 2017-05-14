@@ -8,7 +8,7 @@ GameStates.makeStudy = function( game, shared ) {
     var spellcaster, circle, spellbook, textBook, boy, sprites, tag, decoy, reticle, aimArea, electricity, shockMarks;
     var gameOver, textFinal, mana, manaEmpty, manaTop, manaBottom, textInfo, cropRect, cost, boySight, boySpeed;
     var specialEvent, bookShelf, textExamine, textSearch, searchEvent, emptySearchEvent, chasing, tagCount, seeTotal, face;
-    var moveTime, moveCountDown, spellList, speechEvent, sawCast, exitButton;
+    var moveTime, moveCountDown, spellList, speechEvent, sawCast, exitButton, talked;
 
     function quitGame() {
         music.stop();
@@ -60,7 +60,7 @@ GameStates.makeStudy = function( game, shared ) {
             spellcaster.animations.add('down', [12,13,14,13]);
             sprites.add(spellcaster);
 
-            boySight = 200;   boySpeed = 80;  chasing = false;  tagCount=0;   seeTotal=0;   moveCountDown = 0;
+            boySight = 200;   boySpeed = 80;  chasing = false;  tagCount=0;   seeTotal=0;   moveCountDown = 0;  talked = false;
             moveTime = this.time.time+game.rnd.integerInRange(2500, 5000);
             boy = createboy(0, 488, 333);
             function createboy (num, x, y) {
@@ -191,7 +191,7 @@ GameStates.makeStudy = function( game, shared ) {
                 speechEvent = game.time.events.add(6000, this.endSpeech, this);
                 var upper = 3; if (spellList.length>2) upper++;
                 var say = game.rnd.integerInRange(1, upper);
-                if (tagCount===0) boy.data.speech.text = "Want to play tag?\nMake some distance\nbetween us and press\nR when you're ready.";
+                if (tagCount===0) {boy.data.speech.text = "Want to play tag?\nMake some distance\nbetween us and press\nR when you're ready."; talked=true;}
                 else if (say===1 && seeTotal>5000) boy.data.speech.text = "I thought I might\nnever catch you.\nDid you get bored\nand let me?";
                 else if (say===1 && seeTotal>2000) boy.data.speech.text = "You're pretty good.\nYou evaded me for\na while there.";
                 else if (say===1 && seeTotal<750) boy.data.speech.text="That was quick\nonce I saw you.\nAlways be ready to\nescape with a spell.";
@@ -202,7 +202,8 @@ GameStates.makeStudy = function( game, shared ) {
                 else if (say>2) this.spellComment(spellList[game.rnd.integerInRange(0, spellList.length-1)]);
                 //console.log(spellList);
             }
-            if (spellKeys.r.downDuration(1) && !chasing) {chasing = true;  boy.data.speech.text="";  seeTotal=0;  spellList = []; face.alpha=0;}
+            if (spellKeys.r.downDuration(1) && !chasing && talked)
+                {chasing = true;  boy.data.speech.text="";  seeTotal=0;  spellList = []; face.alpha=0;}
             if (spellKeys.h.downDuration(1)) {
                 if (spellbook.alpha==0) {textBook.text="Press H to close spellbook.";  spellbook.alpha=1;}
                 else {textBook.text="Press H to open spellbook.";  spellbook.alpha=0;}
@@ -570,7 +571,7 @@ GameStates.makeStudy = function( game, shared ) {
         endSpeech: function () { boy.data.speech.text = ""; speechEvent=null; },
         moveBoy: function () {
             var b = boy.data.collisionBoxes;
-            boy.data.speech.x = boy.centerX;  boy.data.speech.y = boy.centerY-28;
+            boy.data.speech.x = boy.centerX;  boy.data.speech.y = boy.centerY-15;
             game.physics.arcade.overlap(boy, electricity, this.stunCheck, null, this);
             if (boy.data.stun>0) {boy.data.stun--;  boy.data.counter=0;   boy.body.velocity.set(0);}
             else if (boy.data.shock) {sprites.remove(boy.data.shock); boy.data.shock.kill(); boy.data.shock = null;}

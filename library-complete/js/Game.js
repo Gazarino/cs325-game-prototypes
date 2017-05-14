@@ -594,7 +594,8 @@ GameStates.makeGame = function( game, shared ) {
                 if (sc.centerY+sc.height/2 < f.centerY+f.height/2 && sc.z > f.z) sprites.swap(sc, f);
                 else if (sc.centerY+sc.height/2 > f.centerY+f.height/2 && sc.z < f.z) sprites.swap(sc, f);
             }//*
-            if (Math.abs(sc.centerY-enemy.centerY)<15 && Math.abs(sc.centerX-enemy.centerX)<15 && enemy.alpha===1 && !enemy.data.controlled) {
+            if (Math.abs(sc.centerY-enemy.centerY)<15 && Math.abs(sc.centerX-enemy.centerX)<15 &&
+                    enemy.alpha===1 && !enemy.data.controlled && !enemy.data.dying) {
                 for (var i = 0; i < enemies.length; i++)
                     enemies[i].body.velocity.set(0);
                 spellcaster.body.velocity.set(0);   decoy.body.velocity.set(0);   reticle.body.velocity.set(0);
@@ -682,7 +683,7 @@ GameStates.makeGame = function( game, shared ) {
                     game.add.tween(enemy).to({alpha:1}, 1000, "Linear", true);
                 } else if (enemy.data.frog && enemy.data.frog.alpha<.1) {sprites.remove(enemy.data.frog);  enemy.data.frog.kill();  enemy.data.frog=null;}
                 if (decoy.alpha>.1 && enemy.data.distractCount<200) game.physics.arcade.overlap(enemy, decoy, decoyCheck, null, this);
-                else if (decoy.alpha<=.1) {enemy.data.distractCount = 0;  enemy.data.seeMark.alpha = 0;}
+                else if (decoy.alpha<=.1) {enemy.data.distractCount = 0;  enemy.data.seeMark.alpha = 0;  enemy.data.seeMark.play('?');}
                 function decoyCheck (e, d) {
                     if (Math.abs(e.centerY-d.centerY)<20 && Math.abs(e.centerX-d.centerX)<20) {
                         e.data.distractCount++;
@@ -823,6 +824,9 @@ GameStates.makeGame = function( game, shared ) {
                     if (Math.abs(enemy.body.velocity.x)>40) enemy.body.velocity.x*=ss;
                     if (Math.abs(enemy.body.velocity.y)>40) enemy.body.velocity.y*=ss;
                 }
+                if (enemy.data.seeMark && enemy.data.seeMark.animations && enemy.data.seeMark.animations.currentAnim
+                          && enemy.data.seeMark.animations.currentAnim.name==="H")
+                    enemy.data.seeMark.alpha = 1;
                 if (!enemy.data.dying) this.enemyDeathCheck(enemy);
                 if (enemy.data.dying) {
                     enemy.body.velocity.set(0);
