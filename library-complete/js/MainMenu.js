@@ -13,6 +13,7 @@ GameStates.makeMainMenu = function( game, shared ) {
 				music.stop();
 				rain.stop();
 				shared.char = selected;
+				//shared.friend = shared.char;
 				if (goingToGame)
         		game.state.start('Game');
 				else

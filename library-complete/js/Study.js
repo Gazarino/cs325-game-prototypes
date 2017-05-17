@@ -8,7 +8,8 @@ GameStates.makeStudy = function( game, shared ) {
     var spellcaster, circle, spellbook, textBook, boy, sprites, tag, decoy, reticle, aimArea, electricity, shockMarks;
     var gameOver, textFinal, mana, manaEmpty, manaTop, manaBottom, textInfo, cropRect, cost, boySight, boySpeed;
     var specialEvent, bookShelf, textExamine, textSearch, searchEvent, emptySearchEvent, chasing, tagCount, seeTotal, face;
-    var moveTime, moveCountDown, spellList, speechEvent, sawCast, exitButton, talked;
+    var moveTime, moveCountDown, spellList, speechEvent, sawCast, exitButton;
+    var textFindings, infoSpell, infoTag, infoUlrick, tagAlt, lastSpell, lastTopic;
 
     function quitGame() {
         music.stop();
@@ -34,6 +35,7 @@ GameStates.makeStudy = function( game, shared ) {
             circle = game.add.sprite(0,0,'circle');   circle.alpha = 0;
             circle.animations.add('spin', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
             tag = game.add.sprite(0, 0, 'tag');   tag.alpha = 0;
+            tagAlt = game.add.sprite(0, 0, 'tagAlt');   game.physics.arcade.enable(tagAlt);   tagAlt.alpha = 0;
             wallLayer = map.createLayer('Walls');
             wallLayer.resizeWorld();
             map.setCollision([5,6,7,15,16,17,25,26,27,35,36,45,46], true, wallLayer);
@@ -48,7 +50,7 @@ GameStates.makeStudy = function( game, shared ) {
             decoy.animations.add('downSide', [9,10,11,10]); decoy.animations.add('downSideStill', [10]);
             decoy.animations.add('down', [12,13,14,13]);    decoy.animations.add('downStill', [13]);
             sprites.add(decoy);
-            spellcaster = game.add.sprite(375, 444, 'girl'+shared.char);
+            spellcaster = game.add.sprite(505, 610, 'girl'+shared.char);
             spellcaster.scale.set(.75);   spellcaster.anchor.set(.5);
             spellcaster.data = {speed:70, spellInUse:false, spellType:"", stun:0, shock:null, specialInUse:false,
                                 shrinkTime:0, revealTime:0, vanishTime:0, fadeTime:0, regenTime:0, regenRate:425};
@@ -60,9 +62,9 @@ GameStates.makeStudy = function( game, shared ) {
             spellcaster.animations.add('down', [12,13,14,13]);
             sprites.add(spellcaster);
 
-            boySight = 200;   boySpeed = 80;  chasing = false;  tagCount=0;   seeTotal=0;   moveCountDown = 0;  talked = false;
+            boySight = 200;   boySpeed = 80;  chasing = false;  tagCount=0;   seeTotal=0;   moveCountDown = 0;
             moveTime = this.time.time+game.rnd.integerInRange(2500, 5000);
-            boy = createboy(0, 488, 333);
+            boy = createboy(0, 590, 465);
             function createboy (num, x, y) {
                 var boy = game.add.sprite(x, y, 'man'+num);
                 boy.data = {collisionBoxes:null, lineOfSight:game.add.physicsGroup(), seeSC:false, moveList:[], frogTimer:0, frog:null,
@@ -109,6 +111,7 @@ GameStates.makeStudy = function( game, shared ) {
             boy.data.seeMark.animations.add('..', [2]);  boy.data.seeMark.animations.add('H', [3]);
 
             textBook = game.add.text(5, 5, "Press H to close spellbook.", {font:"8px Sitka Small", fill:"#ffffff", align:"center" });
+            textFindings = game.add.text(5, 5, "", {font:"8px Sitka Small", fill:"#ffffff", align:"left" });
             spellbook = game.add.sprite(-50, 10, 'spellbook');
             manaBottom = game.add.sprite(0, 0, 'manaBottom');   manaTop = game.add.sprite(0, 0, 'manaTop');
             manaEmpty = game.add.sprite(0, 0, 'manaEmpty');     mana = game.add.sprite(0, 0, 'mana');
@@ -129,6 +132,21 @@ GameStates.makeStudy = function( game, shared ) {
             spellList = []; sawCast = false;
             exitButton = game.add.button(0,0, 'exitButton', quitGame, null, 'over', 'out', 'down');
 						exitButton.scale.set(.35);
+
+            var cheat = false;
+            if (cheat) {
+                textFindings.text+="Spell of Responsibility: S~aadw\n";
+                textFindings.text+="Tag Alternative: W~dsas\n";
+                textFindings.text+="Ulrick info found.\n";
+            }
+            infoUlrick = {found:cheat, loc:game.rnd.integerInRange(1,8)};
+            infoSpell = {found:cheat, loc:game.rnd.integerInRange(1,8)};
+            infoTag = {found:cheat, loc:game.rnd.integerInRange(1,8)};
+
+            while (infoSpell.loc===infoUlrick.loc)
+                infoSpell.loc = game.rnd.integerInRange(1,8);
+            while (infoTag.loc===infoUlrick.loc || infoTag.loc===infoSpell.loc)
+                infoTag.loc = game.rnd.integerInRange(1,8);
         },
 
         update: function () {
@@ -160,6 +178,7 @@ GameStates.makeStudy = function( game, shared ) {
             textFinal.x = game.camera.x+game.width/2;       textFinal.y = game.camera.y+game.height/2;
             textBook.x = game.camera.x+5;                   textBook.y = game.camera.y+2;
             spellbook.x = game.camera.x-105;                spellbook.y = game.camera.y;
+            textFindings.x = game.camera.x+5;               textFindings.y = game.camera.y+150;
             face.x = game.camera.x+game.width-face.width;   face.y = game.camera.y;
             exitButton.x = game.camera.x+game.width-exitButton.width-3;
             exitButton.y = game.camera.y+game.height-exitButton.height-3;
@@ -167,16 +186,18 @@ GameStates.makeStudy = function( game, shared ) {
         spellComment: function (c) {
           if (c==="wssaa") boy.data.speech.text="Like warping, huh?\nIt looks like fun.\nI wish I could do it.";
           else if (c==="wsasd") boy.data.speech.text="You can go anywhere\nyou mark first...\nThat's neat.";
-          else if (c==="aswsd") boy.data.speech.text="The magic image you\nmade of yourself\nwas interesting.\nIt looked very realistic.";
-          else if (c==="assdd") boy.data.speech.text="It kinda hurt getting\nstunned. No hard\nfeelings though.";
+          else if (c==="aswsd") boy.data.speech.text="The magic image you\nmade of yourself\nwas fascinating.\nIt looked very realistic.";
+          else if (c==="assdd") boy.data.speech.text="Your electric magic\nhurt some. No hard\nfeelings though.";
           else if (c==="dssws") boy.data.speech.text="I can tag you even\nif I don't see you.\nBe careful using vanish\nwhen you're seen.";
           else if (c==="dasas") boy.data.speech.text="Your detection spell\nis cool. This would be\neasier if I always\nknew your location.";
           else if (c==="dsawa") boy.data.speech.text="Did you see where\nthat gap in the\nbookshelf leads?\nI could never fit.";
           else if (c==="swdwa") boy.data.speech.text="I hope you don't think\nI'm weird for this,\nbut I think little\nyou is cute.";
-          else if (c==="sawda" && shared.char===1) boy.data.speech.text="You turned me into\na frog... Well, it wasn't\nfor long, so I\nguess you're forgiven.";
+          else if (c==="sawda" && shared.char===1) boy.data.speech.text="You turned me into\na frog... Well, it wasn't\nfor long, so\nI forgive you.";
           else if (c==="sawda" && shared.char===2) boy.data.speech.text="I can't believe you\ntook control of my body.\nI'm glad we're not enemies.";
           else if (c==="sawda" && shared.char===3) boy.data.speech.text="Your speed is\nincredible.\nIf only I could run\nthat fast...";
-          else if (c==="sawda" && shared.char===4) boy.data.speech.text="You had me chasing\nyour doppelganger.\nNice move.";
+          else if (c==="sawda" && shared.char===4) boy.data.speech.text="You had me chasing\nyour doppelganger.\nYour magic really\nis amazing.";
+          else if (c==="saadw") boy.data.speech.text="So you found out\nmy secret...\nHow embarrassing.\nI feel bad about\nhaving done that.";
+          else if (c==="wdsas") boy.data.speech.text="Being teleported gave\nme a strange feeling,\nbut I enjoyed it\nnonetheless.";
         },
         analyzeSpellInput: function () {
             if (spellKeys.t.downDuration(1) && textSearch.text==="Press T to talk.") {
@@ -191,22 +212,28 @@ GameStates.makeStudy = function( game, shared ) {
                 speechEvent = game.time.events.add(6000, this.endSpeech, this);
                 var upper = 3; if (spellList.length>2) upper++;
                 var say = game.rnd.integerInRange(1, upper);
-                if (tagCount===0) {boy.data.speech.text = "Want to play tag?\nMake some distance\nbetween us and press\nR when you're ready."; talked=true;}
+                var sNum = -1; if (spellList.length>0) sNum = game.rnd.integerInRange(0, spellList.length-1);
+                while (say===lastTopic && !(say>2 && spellList.length>1)) say = game.rnd.integerInRange(1, upper);
+                while (say>2 && sNum===lastSpell && spellList.length>1) sNum = game.rnd.integerInRange(0, spellList.length-1);
+                if (tagCount===0) boy.data.speech.text = "Want to play tag?\nMake some distance\nbetween us and press\nR when you're ready.";
                 else if (say===1 && seeTotal>5000) boy.data.speech.text = "I thought I might\nnever catch you.\nDid you get bored\nand let me?";
                 else if (say===1 && seeTotal>2000) boy.data.speech.text = "You're pretty good.\nYou evaded me for\na while there.";
                 else if (say===1 && seeTotal<750) boy.data.speech.text="That was quick\nonce I saw you.\nAlways be ready to\nescape with a spell.";
                 else if (say===1) boy.data.speech.text="You did a decent job.\nTag can be a hard game.";
-                else if (say===2 && game.rnd.integerInRange(0,1)) boy.data.speech.text="Did you have fun?\nI'll play however\nmuch you want.";
-                else if (say===2) boy.data.speech.text="I like playing with you.\nIf you want to play\nagain, just press R.";
+                else if (say===2 && tagCount>=5 && infoUlrick.found && game.rnd.integerInRange(0,1)) { shared.friend = shared.char;
+                    boy.data.speech.text="I truly thank you\nfor the company.\nI was lonely\nbefore you came.";
+                } else if (say===2 && tagCount>=2 && game.rnd.integerInRange(0,1)) boy.data.speech.text="Are you having fun?\nI like playing with you.";
+                else if (say===2) boy.data.speech.text="Just press R if you'd\nlike to play again.\nI'll play however\nmuch you want.";
                 else if (say>2 && spellList.length===0) boy.data.speech.text="I didn't see you cast\nany spells that time.\nI'd like to see more\nof your magic.";
-                else if (say>2) this.spellComment(spellList[game.rnd.integerInRange(0, spellList.length-1)]);
+                else if (say>2) this.spellComment(spellList[sNum]);
                 //console.log(spellList);
+                lastTopic = say;  lastSpell = sNum;
             }
-            if (spellKeys.r.downDuration(1) && !chasing && talked)
-                {chasing = true;  boy.data.speech.text="";  seeTotal=0;  spellList = []; face.alpha=0;}
+            if (spellKeys.r.downDuration(1) && !chasing && lastTopic && boy.data.speech.text==="")
+                {chasing = true;  seeTotal=0;  spellList = []; face.alpha=0;}
             if (spellKeys.h.downDuration(1)) {
-                if (spellbook.alpha==0) {textBook.text="Press H to close spellbook.";  spellbook.alpha=1;}
-                else {textBook.text="Press H to open spellbook.";  spellbook.alpha=0;}
+                if (spellbook.alpha==0) {textBook.text="Press H to close spellbook.";  spellbook.alpha=1;  textFindings.alpha=1;}
+                else {textBook.text="Press H to open spellbook.";  spellbook.alpha=0;  textFindings.alpha=0;}
             }
             if (spellKeys.e.downDuration(1) && textExamine!=="") {
                 textSearch.text = "Searching...";
@@ -307,11 +334,29 @@ GameStates.makeStudy = function( game, shared ) {
                         spellcaster.centerX = tag.centerX;  spellcaster.centerY = tag.centerY-10;  tag.alpha = 0;
                     }
                 }
+            } else if (circle.data==="dsas" && spellcaster.data.spellType==="w" && infoTag.found) { cost = 30;
+                if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
+                var offScreen = (tagAlt.x+tag.width<game.camera.x || tagAlt.x>=game.camera.x+game.width ||
+                                tagAlt.y+tag.height<game.camera.y || tagAlt.y>=game.camera.y+game.height);
+                if (tagAlt.alpha===0 || offScreen) {
+                    var xx = tagAlt.x, yy = tagAlt.y;
+                    tagAlt.centerX = spellcaster.centerX;    tagAlt.centerY = spellcaster.centerY;
+                    if (this.collidingWithWall(tagAlt)) { tagAlt.x=xx;  tagAlt.y=yy;  end("Too close to a wall.");  return; }
+                    tagAlt.alpha=0;   game.add.tween(tagAlt).to({alpha:1}, 1000, "Linear", true);
+                } else {
+                    if (this.lineExists(boy) && boy.data.lineOfSight.children[0].tint!==0x00ff00) { end("No one sees you."); return; }
+                    if (!infoUlrick.found) { end("Insufficient\nknowledge of target."); return; }
+                    game.time.events.add(150, warpBoyToTag, this);
+                    function warpBoyToTag () {
+                        boy.centerX = tagAlt.centerX;  boy.centerY = tagAlt.centerY;  tagAlt.alpha = 0;
+                        if (!mainGame.listHas("wdsas")) spellList.push("wdsas");
+                    }
+                }
             } else if (circle.data==="ssaa" && spellcaster.data.spellType==="w") { cost = 25;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 if (boy.data.seeSC) sawCast = true;
                 game.time.events.add(150, warpForward, this, spellcaster.animations.currentAnim.name, (spellcaster.scale.x>0));
-                function warpForward (a, facingRight) { if (gameOver) return;  this.alignWithCamera();
+                function warpForward (a, facingRight) { this.alignWithCamera();
                     var dist = 49+spellcaster.height;  if (a.includes("Side")) dist-=16;
                     if (a==="up") {
                         spellcaster.centerY-=dist;
@@ -359,6 +404,18 @@ GameStates.makeStudy = function( game, shared ) {
                 electricity.x = aimArea.x;  electricity.y = aimArea.y;
                 electricity.width = aimArea.width;    electricity.height = aimArea.height;
                 game.time.events.add(500, this.fadeObj, this, electricity);
+            } else if (circle.data==="aadw" && spellcaster.data.spellType==="s" && infoSpell.found) { cost = 25;
+                if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
+                if (this.lineExists(boy) && boy.data.lineOfSight.children[0].tint!==0x00ff00) { end("No one sees you."); return; }
+                boy.data.stun = 200;
+                game.time.events.add(500, startSpeech, this);    game.time.events.add(3500, endSpeech, this);
+                function startSpeech() {
+                    if (!infoUlrick.found) boy.data.speech.text = "...";
+                    else {  boy.data.speech.text = "I'm responsible for..\n..teasing other animals\nin the past.";
+                        if (!mainGame.listHas("saadw")) spellList.push("saadw");
+                    }
+                }
+                function endSpeech() { boy.data.speech.text = ""; }
             } else if (circle.data==="awda" && spellcaster.data.spellType==="s") { cost = 55;
                 if (cropRect.width-cost < 0) { end("Not enough mana."); return; }
                 if (shared.char===1) {
@@ -374,12 +431,11 @@ GameStates.makeStudy = function( game, shared ) {
                         game.add.tween(boy).to({alpha:0}, 1000, "Linear", true);  applied = true;
                     }
                     if (!applied) { end("No one sees you."); return; }
-                } else if (shared.char===2) { var line = null;
-                    if (this.lineExists(boy)) line = boy.data.lineOfSight.children[0];
-                    if (this.lineExists(boy) && (line.tint===0x00ff00 || line.tint===0xffff00) && chasing) {
+                } else if (shared.char===2) { var l = null;
+                    if (this.lineExists(boy)) l = boy.data.lineOfSight.children[0].tint;
+                    if (this.lineExists(boy) && (l===0x00ff00 || l===0xffff00) && chasing) {
                         boy.data.controlled = true;   sawCast = true;
-                    } else if (this.lineExists(boy) && (line.tint===0x00ff00 || line.tint===0xffff00))
-                        { end("Don't be mean."); return; }
+                    } else if (this.lineExists(boy) && (l===0x00ff00 || l===0xffff00)) { end("Don't be mean."); return; }
                     else { end("No one is in clear view."); return; }
                 } else if (shared.char===3) {
                     spellcaster.data.speed = 140;
@@ -390,16 +446,6 @@ GameStates.makeStudy = function( game, shared ) {
                 specialEvent = game.time.events.add(15000, this.cancelSpecial, this);
             } else { end("Spell not recognized."); return; }
             this.endSpell();
-            function getClosest () {
-                var closest = null, shortestDist = 333;
-                if (boy.data.seeSC) {
-                    var distanceX = spellcaster.centerX-boy.centerX;
-                    var distanceY = spellcaster.centerY-boy.centerY;
-                    var distance = Math.sqrt(distanceX*distanceX + distanceY*distanceY);
-                    if (distance<shortestDist) {shortestDist=distance;  closest=boy;}
-                }
-                return closest;
-            }
             function end(s) {
                 textInfo.text = s;  textInfo.alpha = 1;  spellcaster.data.spellType="NaN";  circle.tint = 0xff0000;
                 game.time.events.add(2000, mainGame.fadeObj, this, textInfo);   cost=0;  mainGame.endSpell();
@@ -429,7 +475,7 @@ GameStates.makeStudy = function( game, shared ) {
                     this.idAt(scX-w,scY)>=0 || this.idAt(scX+w,scY)>=0);
         },
         endShrink: function () {
-            if (spellcaster.centerY<264) {
+            if (spellcaster.centerY<460) {
                 spellcaster.data.shrinkTime = this.time.time+1000;
             } else {
                 var sign=1;   if (spellcaster.scale.x<0) sign=-1;
@@ -789,7 +835,7 @@ GameStates.makeStudy = function( game, shared ) {
         },
         evalBookshelves: function () {    bookShelf = 0;    textExamine.text = "";
             var x = floorLayer.getTileX(spellcaster.centerX);
-            var y = floorLayer.getTileY(spellcaster.centerY);   //console.log("("+x+", "+y+")");
+            var y = floorLayer.getTileY(spellcaster.centerY);
             function facingUp() {return (spellcaster.animations.currentAnim.name==="up");}
             function facingDown() {return (spellcaster.animations.currentAnim.name==="down");}
             function facingRight() {return (spellcaster.animations.currentAnim.name==="side" && spellcaster.scale.x>0);}
@@ -798,27 +844,15 @@ GameStates.makeStudy = function( game, shared ) {
                                   || facingLeft() && boy.centerX<spellcaster.centerX || facingRight() && boy.centerX>spellcaster.centerX);}
             if (Math.abs(spellcaster.centerY-boy.centerY)<25 && Math.abs(spellcaster.centerX-boy.centerX)<25
                     && !chasing && facingBoy() && boy.data.speech.text==="") bookShelf=-3315;
-            /*
-            if (x>=17 && x<=52 && y===16 && facingUp()) bookShelf = 1;
-            else if (x>=19 && x<=29 && y===19 && facingDown() || x>=19 && x<=29 && y===21 && facingUp()) bookShelf = 2;
-            else if (x>=19 && x<=29 && y===24 && facingDown() || x>=19 && x<=29 && y===26 && facingUp()) bookShelf = 3;
-            else if (x===18 && y>=30 && y<=48 && facingRight() || x===20 && y>=30 && y<=48 && facingLeft()) bookShelf = 4;
-            else if (x===25 && y>=30 && y<=48 && facingRight() || x===27 && y>=30 && y<=48 && facingLeft()) bookShelf = 5;
-            else if (x===32 && y>=18 && y<=31 && facingRight() || x===34 && y>=18 && y<=31 && facingLeft()) bookShelf = 6;
-            else if (x===32 && y>=35 && y<=48 && facingRight() || x===34 && y>=35 && y<=48 && facingLeft()) bookShelf = 7;
-            else if (x>=37 && x<=45 && y===19 && facingDown() || x>=37 && x<=45 && y===21 && facingUp()) bookShelf = 8;
-            else if (x>=37 && x<=45 && y===24 && facingDown() || x>=37 && x<=45 && y===26 && facingUp()) bookShelf = 9;
-            else if (x>=37 && x<=45 && y===40 && facingDown() || x>=37 && x<=45 && y===42 && facingUp()) bookShelf = 10;
-            else if (x>=37 && x<=45 && y===45 && facingDown() || x>=37 && x<=45 && y===47 && facingUp()) bookShelf = 11;
-            else if (x===48 && y>=18 && y<=31 && facingRight() || x===50 && y>=18 && y<=31 && facingLeft()) bookShelf = 12;
-            else if (x===48 && y>=35 && y<=48 && facingRight() || x===50 && y>=35 && y<=48 && facingLeft()) bookShelf = 13;
-            else if (x>=53 && x<=59 && y===20 && facingUp()) bookShelf = 14;
-            else if (x===55 && y>=25 && y<=42 && facingRight() || x===57 && y>=25 && y<=42 && facingLeft()) bookShelf = 15;
-            else if (x>=63 && x<=80 && y===18 && facingDown() || x>=63 && x<=80 && y===20 && facingUp()) bookShelf = 16;
-            else if (x>=63 && x<=78 && y===24 && facingDown() || x>=63 && x<=78 && y===26 && facingUp()) bookShelf = 17;
-            else if (x>=63 && x<=78 && y===30 && facingDown() || x>=63 && x<=78 && y===32 && facingUp()) bookShelf = 18;
-            else if (x>=63 && x<=78 && y===41 && facingDown() || x>=63 && x<=78 && y===43 && facingUp()) bookShelf = 19;
-            else if (x>=63 && x<=78 && y===46 && facingDown() || x>=63 && x<=78 && y===48 && facingUp()) bookShelf = 20;//*/
+
+            if (x>=20 && x<=29 && y===28 && facingUp()) bookShelf = 1;
+            else if (x===21 && y>=31 && y<=35 && facingRight() || x===23 && y>=31 && y<=35 && facingLeft()) bookShelf = 2;
+            else if (x===25 && y>=31 && y<=35 && facingRight() || x===27 && y>=31 && y<=35 && facingLeft()) bookShelf = 3;
+            else if (x>=23 && x<=28 && y===40 && facingDown() || x>=23 && x<=28 && y===42 && facingUp()) bookShelf = 4;
+            else if (x>=30 && x<=32 && y===35 && facingUp()) bookShelf = 5;
+            else if (x>=34 && x<=39 && y===40 && facingDown() || x>=34 && x<=39 && y===42 && facingUp()) bookShelf = 6;
+            else if (x>=36 && x<=40 && y===34 && facingDown() || x>=36 && x<=40 && y===36 && facingUp()) bookShelf = 7;
+            else if (x>=33 && x<=42 && y===28 && facingUp()) bookShelf = 8;
             if (bookShelf>0 && textSearch.text==="") textExamine.text = "Press E to examine\nbookshelf "+bookShelf+".";
             else if (searchEvent && bookShelf===0) {
                 game.time.events.remove(searchEvent);   searchEvent=null;
@@ -830,7 +864,16 @@ GameStates.makeStudy = function( game, shared ) {
         },
         finishSearch: function () {
             searchEvent=null;
-            if (bookShelf>0) textSearch.text="You found nothing\nof interest.";
+            if (bookShelf===infoSpell.loc) {
+                if (!infoSpell.found) textFindings.text+="Spell of Responsibility: S~aadw\n";  infoSpell.found=true;
+                textSearch.text="You found the\n\"Spell of Responsibility.\"\nHow to cast: S~aadw\nPrompt someone to\nreveal what they're\nresponsible for.";
+            } else if (bookShelf===infoTag.loc) {
+                if (!infoTag.found) textFindings.text+="Tag Alternative: W~dsas\n";   infoTag.found = true;
+                textSearch.text="You found the spell\n\"Tag Alternative.\"\nHow to cast: W~dsas\nWarp nearest person\nwho sees you to\ntag on screen.";
+            } else if (bookShelf===infoUlrick.loc) {
+                if (!infoUlrick.found) textFindings.text+="Ulrick info found.\n";   infoUlrick.found = true;
+                textSearch.text="One book describes an\nattentive wolf boy who\nseeks nothing more\nthan adventure and\ncompanionship.";
+            } else if (bookShelf>0) textSearch.text="You found nothing\nof interest.";
         },
     }; return mainGame;
 };

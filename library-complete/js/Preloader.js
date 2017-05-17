@@ -46,6 +46,7 @@ GameStates.makePreloader = function( game ) {
 						game.load.spritesheet('girl2', 'assets/girl2 (Kaguya Houraisan).png', 32, 32, 15);
 						game.load.spritesheet('girl3', 'assets/girl3 (Reisen Udongein Inaba).png', 32, 32, 15);
 						game.load.spritesheet('girl4', 'assets/girl4 (Ran Yakumo).png', 32, 32, 15);
+						game.load.spritesheet('ulrick', 'assets/man0.png', 32, 32, 12);
 						game.load.spritesheet('man0', 'assets/man0_smaller.png', 32, 32, 12);
 						game.load.spritesheet('man1', 'assets/man1 (Frank).png', 32, 32, 12);
 						game.load.spritesheet('man2', 'assets/man2 (Bird).png', 32, 32, 12);

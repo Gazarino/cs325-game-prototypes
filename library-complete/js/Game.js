@@ -926,10 +926,10 @@ GameStates.makeGame = function( game, shared ) {
             searchEvent=null;
             if (bookShelf===infoSpell.loc) {
                 if (!infoSpell.found) textFindings.text+="Spell of Responsibility: S~aadw\n";  infoSpell.found=true;
-                textSearch.text="You found the\n\"Spell of Responsibility.\"\nHow to cast: S~aadw\nPrompt the enemy\nto speak of their\nresponsibilities.";
+                textSearch.text="You found the\n\"Spell of Responsibility.\"\nHow to cast: S~aadw\nPrompt someone to\nreveal what they're\nresponsible for.";
             } else if (bookShelf===infoTag.loc) {
                 if (!infoTag.found) textFindings.text+="Tag Alternative: W~dsas\n";   infoTag.found = true;
-                textSearch.text="You found the spell\n\"Tag Alternative.\"\nHow to cast: W~dsas\nWarp nearest enemy\nwho sees you to\ntag on screen.";
+                textSearch.text="You found the spell\n\"Tag Alternative.\"\nHow to cast: W~dsas\nWarp nearest person\nwho sees you to\ntag on screen.";
             } else if (bookShelf===infoFrank.loc) {
                 if (!infoFrank.found) textFindings.text+="Frank info found.\n";   infoFrank.found = true;
                 textSearch.text="One book describes\nan overweight man with\nmetallic-like skin\nwho would like to\nwreak havoc unbeknownst\nto the world.";
