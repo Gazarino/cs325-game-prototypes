@@ -72,7 +72,7 @@ function update() {
     }
     if (opKeys.l.downDuration(1))
         showList = !showList;
-    if (opKeys.s.downDuration(1) && showList && listStart<points.length)
+    if (opKeys.s.downDuration(1) && showList && listStart<points.length-1)
         listStart++;
     else if (opKeys.w.downDuration(1) && showList && listStart>0)
         listStart--;
