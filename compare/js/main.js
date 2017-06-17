@@ -40,9 +40,9 @@ function create() {
 
     pointTxt = game.add.text(0, 0, "", {font:"40px Times New Roman", fill:"#000000", align:"center", fontWeight:"bold"});
     pointTxt.anchor.setTo(0.5, 0.5);
-    nameTxt = game.add.text(0, 0, "", {font:"30px Times New Roman", fill:"#000000", align:"center", fontWeight:"bold"});
+    nameTxt = game.add.text(0, 0, "", {font:"26px Times New Roman", fill:"#000000", align:"center", fontWeight:"bold"});
     nameTxt.anchor.setTo(0.5, 0.5);
-    listTxt = game.add.text(0, 0, "", {font:"20px Segoe UI Black", fill:"#000000", align:"left"});
+    listTxt = game.add.text(0, 0, "", {font:"22px Segoe UI Black", fill:"#000000", align:"left"});
     game.input.onTap.add(selection, this);
 }
 function selection() {
@@ -131,7 +131,7 @@ function cameraAlign () {
 
     if (!showNames) {
         nameTxt.x = game.input.activePointer.worldX/game.camera.scale.x;
-        nameTxt.y = game.input.activePointer.worldY/game.camera.scale.x-20/game.camera.scale.x;
+        nameTxt.y = game.input.activePointer.worldY/game.camera.scale.x-20;
         if (nameTxt.y<-975)
             nameTxt.y+=40/game.camera.scale.x;
         nameTxt.scale.x = .65/game.camera.scale.x;
@@ -171,10 +171,10 @@ function checkInput() {
         yVal = inputBox.value;
         destroyInputBox();
         var point = game.add.sprite(xVal*100, -yVal*100, 'point');
-        var ptName = game.add.text(xVal*100, -yVal*100-20/game.camera.scale.x, name, {font:"30px Times New Roman", fill:"#000000", align:"center", fontWeight:"bold"});
+        var ptName = game.add.text(xVal*100, -yVal*100-20, name, {font:"26px Times New Roman", fill:"#000000", align:"center", fontWeight:"bold"});
         ptName.anchor.setTo(0.5, 0.5);
         if (ptName.y<-975)
-            ptName.y+=40/game.camera.scale.x;
+            ptName.y+=40;
         ptNames.push(ptName);
         point.anchor.setTo(0.5, 0.5);
         point.data = name
