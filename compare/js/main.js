@@ -15,7 +15,8 @@ var xAxis, yAxis, cursors, speed;
 var size = new Phaser.Rectangle();
 var opKeys, pointTxt, nameTxt;
 var inputBox, name, xVal, yVal;
-var points = [];
+var points = [], ptNames = [];
+var showList = false, listTxt, target, showNames = true, listStart=0;
 
 function create() {
     game.add.plugin(PhaserInput.Plugin);
@@ -34,13 +35,14 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.UP, Phaser.Keyboard.DOWN ]);
     opKeys = game.input.keyboard.addKeys( {'a': Phaser.KeyCode.A, 'z': Phaser.KeyCode.Z, 'enter': Phaser.KeyCode.ENTER,
-                                              'h': Phaser.KeyCode.H, 'e': Phaser.KeyCode.E,
-                                              's': Phaser.KeyCode.S, 'd': Phaser.KeyCode.D, 'x': Phaser.KeyCode.X } );
+                                              'h': Phaser.KeyCode.H, 'l': Phaser.KeyCode.L, 'y': Phaser.KeyCode.Y, 'n': Phaser.KeyCode.N,
+                                              's': Phaser.KeyCode.S, 'w': Phaser.KeyCode.W, 'd': Phaser.KeyCode.D, 'x': Phaser.KeyCode.X } );
 
     pointTxt = game.add.text(0, 0, "", {font:"40px Times New Roman", fill:"#000000", align:"center", fontWeight:"bold"});
     pointTxt.anchor.setTo(0.5, 0.5);
-    nameTxt = game.add.text(0, 0, "", {font:"40px Times New Roman", fill:"#000000", align:"center", fontWeight:"bold"});
+    nameTxt = game.add.text(0, 0, "", {font:"30px Times New Roman", fill:"#000000", align:"center", fontWeight:"bold"});
     nameTxt.anchor.setTo(0.5, 0.5);
+    listTxt = game.add.text(0, 0, "", {font:"20px Segoe UI Black", fill:"#000000", align:"left"});
     game.input.onTap.add(selection, this);
 }
 function selection() {
@@ -68,19 +70,57 @@ function update() {
         pointTxt.y = inputBox.y-40/game.camera.scale.x;
         return;
     }
-    cameraAlign();
+    if (opKeys.l.downDuration(1))
+        showList = !showList;
+    if (opKeys.s.downDuration(1) && showList && listStart<points.length)
+        listStart++;
+    else if (opKeys.w.downDuration(1) && showList && listStart>0)
+        listStart--;
+    if (opKeys.h.downDuration(1))
+        showNames = !showNames;
+    if (!showNames) {
+        nameTxt.alpha = 1;
+        for (var i=0; i<ptNames.length; i++)
+            ptNames[i].alpha = 0;
+    } else {
+        nameTxt.alpha = 0;
+        for (var i=0; i<ptNames.length; i++)
+            ptNames[i].alpha = 1;
+    }
+    if (pointTxt.text.includes("Delete")) {
+        if (opKeys.y.downDuration(1)) {
+            var sprite = points[target];
+            var txt = ptNames[target];
+            points.splice(target,1);
+            ptNames.splice(target,1);
+            sprite.destroy();
+            txt.destroy();
+            pointTxt.text = "";
+            nameTxt.text = "";
+        } else if (opKeys.n.downDuration(1))
+            pointTxt.text = "";
+        return;
+    }
     var realX = Math.round(game.input.activePointer.worldX/game.camera.scale.x) / 100;
     var realY = -Math.round(game.input.activePointer.worldY/game.camera.scale.x) / 100;
+    if (opKeys.d.downDuration(1) && nameTxt.text!=="") {
+        for (var i=0; i<points.length; i++) {
+            var pX = points[i].x/100, pY = (-points[i].y/100);
+            if (points[i].data===nameTxt.text && Math.abs(pX-realX)<.1 && Math.abs(pY-realY)<.1) {
+                pointTxt.text = "Delete point "+points[i].data+" @ ("+pX+", "+pY+")?\n[Y]es    [N]o";
+                pointTxt.x = game.camera.x/game.camera.scale.x+game.width/game.camera.scale.x/2;
+                pointTxt.y = game.camera.y/game.camera.scale.x+game.height/game.camera.scale.x/2;
+                target = i;
+                return;
+            }
+        }
+    }
+    cameraAlign();
     pointTxt.text = "("+realX+", "+realY+")";
     if (cursors.left.isDown) game.camera.x -= speed;
     else if (cursors.right.isDown) game.camera.x += speed;
     if (cursors.up.isDown) game.camera.y -= speed;
     else if (cursors.down.isDown) game.camera.y += speed;
-    /*var closest = null;
-    var bestDist =
-    for (var i=0; i<points.length; i++) {
-        points[i]
-    }//*/
 }
 
 function cameraAlign () {
@@ -89,10 +129,29 @@ function cameraAlign () {
     pointTxt.scale.x = .65/game.camera.scale.x;
     pointTxt.scale.y = .65/game.camera.scale.x;
 
-    nameTxt.x = game.input.activePointer.worldX/game.camera.scale.x;
-    nameTxt.y = game.input.activePointer.worldY/game.camera.scale.x-25/game.camera.scale.x;
-    nameTxt.scale.x = .65/game.camera.scale.x;
-    nameTxt.scale.y = .65/game.camera.scale.x;
+    if (!showNames) {
+        nameTxt.x = game.input.activePointer.worldX/game.camera.scale.x;
+        nameTxt.y = game.input.activePointer.worldY/game.camera.scale.x-20/game.camera.scale.x;
+        if (nameTxt.y<-975)
+            nameTxt.y+=40/game.camera.scale.x;
+        nameTxt.scale.x = .65/game.camera.scale.x;
+        nameTxt.scale.y = .65/game.camera.scale.x;
+    } else {
+        for (var i=0; i<ptNames.length; i++) {
+            ptNames[i].scale.x = .65/game.camera.scale.x;
+            ptNames[i].scale.y = .65/game.camera.scale.x;
+        }
+    }
+
+    listTxt.text = "";
+    if (showList) {
+        for (var i=listStart; i<points.length; i++)
+            listTxt.text+=points[i].data+" @ ("+points[i].x/100+", "+(-points[i].y/100)+")\n";
+        listTxt.x = game.camera.x/game.camera.scale.x+20/game.camera.scale.x;
+        listTxt.y = game.camera.y/game.camera.scale.x+20/game.camera.scale.x;
+        listTxt.scale.x = .65/game.camera.scale.x;
+        listTxt.scale.y = .65/game.camera.scale.x;
+    }
 }
 
 function checkInput() {
@@ -112,6 +171,11 @@ function checkInput() {
         yVal = inputBox.value;
         destroyInputBox();
         var point = game.add.sprite(xVal*100, -yVal*100, 'point');
+        var ptName = game.add.text(xVal*100, -yVal*100-20/game.camera.scale.x, name, {font:"30px Times New Roman", fill:"#000000", align:"center", fontWeight:"bold"});
+        ptName.anchor.setTo(0.5, 0.5);
+        if (ptName.y<-975)
+            ptName.y+=40/game.camera.scale.x;
+        ptNames.push(ptName);
         point.anchor.setTo(0.5, 0.5);
         point.data = name
         point.inputEnabled = true;
@@ -126,11 +190,9 @@ function checkInput() {
 
 function displayName (p) {
     nameTxt.text = ""+p.data;
-    //console.log(p.data);
 }
 function hideName (p) {
     nameTxt.text = "";
-    //console.log("hide");
 }
 
 function createInputBox () {
