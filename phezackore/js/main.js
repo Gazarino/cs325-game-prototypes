@@ -175,6 +175,7 @@ window.onload = function() {
                 //game.time.events.add(Phaser.Timer.SECOND*2, stopAttack, this);
             }
         }
+        updateMarker();
     }
 
     function search() {
